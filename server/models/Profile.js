@@ -13,26 +13,31 @@ const profileSchema = new mongoose.Schema({
 	posts: [
 		{
 			type: ObjectId,
+			ref: "Post",
 		},
 	],
 	groups: [
 		{
 			type: ObjectId,
+			ref: "Group",
 		},
 	],
 	comments: [
 		{
 			type: ObjectId,
+			ref: "Comment",
 		},
 	],
 	followerCount: [
 		{
 			type: ObjectId,
+			ref: "User",
 		},
 	],
 	followingCount: [
 		{
 			type: ObjectId,
+			ref: "User",
 		},
 	],
 });

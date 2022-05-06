@@ -12,19 +12,26 @@ const postSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	group: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "Group",
+	},
 	upvotes: [
 		{
 			type: ObjectId,
+			ref: "User",
 		},
 	],
 	downvotes: [
 		{
 			type: ObjectId,
+			ref: "User",
 		},
 	],
 	comments: [
 		{
 			type: ObjectId,
+			ref: "Comment",
 		},
 	],
 });
