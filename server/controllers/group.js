@@ -13,6 +13,13 @@ exports.getById = asyncHandler(async (req, res) => {
 		.populate("posts");
 	return res.json(group);
 });
+exports.getByName = asyncHandler(async (req, res) => {
+	const group = await Group.findOne({ name: req.body.name })
+		.populate("members")
+		.populate("moderators")
+		.populate("posts");
+	return res.json(group);
+});
 
 exports.create = asyncHandler(async (req, res) => {
 	const { name } = req.body;

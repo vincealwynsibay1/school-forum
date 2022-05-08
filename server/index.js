@@ -21,7 +21,8 @@ app.use("/api/auth", require("./routes/auth"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/profile", require("./routes/profile"));
 app.use("/api/group", require("./routes/groups"));
-app.use("/api/posts", require("./routes/posts"));
+app.use("/api/group/:group_id/posts", require("./routes/posts"));
+app.use("/api/comments", require("./routes/comments"));
 
 app.use((err, req, res, next) => {
 	const status = err.name && err.name === "ValidationError" ? 400 : 500;

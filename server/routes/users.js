@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { update, deleteProfile } = require("../controllers/user");
+const { update, deleteUser } = require("../controllers/user");
 const { isAuth } = require("../utils/utils");
 const { userUpdateValidator } = require("../validators/user");
 
@@ -11,6 +11,6 @@ router.put("/:user_id", isAuth, userUpdateValidator, update);
 // @route    DELETE api/users/me
 // @desc     Delete current user
 // @access   Private
-router.delete("/:user_id", isAuth, deleteProfile);
+router.delete("/:user_id", isAuth, deleteUser);
 
 module.exports = router;

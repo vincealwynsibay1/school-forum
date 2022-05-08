@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema;
 const postSchema = new mongoose.Schema({
-	author: {
+	user_id: {
 		type: mongoose.Schema.Types.ObjectId,
 	},
 	title: {

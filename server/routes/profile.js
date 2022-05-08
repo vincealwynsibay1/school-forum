@@ -5,7 +5,6 @@ const {
 	create,
 	getCurrent,
 	getProfileById,
-	deleteProfile,
 } = require("../controllers/profile");
 
 // @route    GET api/profile/me
@@ -32,10 +31,5 @@ router.post("/me", isAuth, create);
 // @desc     Update profile bio
 // @access   Private
 router.put("/:user_id", isAuth, getProfileById);
-
-// @route    DELETE api/profile/me
-// @desc     Delete profile
-// @access   Private
-router.delete("/:user_id", isAuth, deleteProfile);
 
 module.exports = router;
