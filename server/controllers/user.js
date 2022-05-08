@@ -1,28 +1,15 @@
 const User = require("../models/User");
 
-exports.read = (req, res) => {
-	return res.json(req.user);
-};
-
 exports.update = (req, res) => {
 	const { username, password } = req.body;
 
-	User.findOne({ _id: req.user._id }, (err, user) => {
+	User.findOne({ _id: req.params.user_id }, (err, user) => {
 		if (err || !user) {
 			return res.status(400).json({ error: "User not found" });
 		}
 
-		if (!username) {
-			return res.status(400).json({ error: "Username is required" });
-		} else {
-			user.username = username;
-		}
-
-		if (!password) {
-			return res.status(400).json({ error: "Password is required" });
-		} else {
-			user.password = password;
-		}
+		user.username = username;
+		user.password = password;
 
 		user.save((err, updatedUser) => {
 			if (err) {
@@ -32,5 +19,14 @@ exports.update = (req, res) => {
 				res.json(updatedUser);
 			}
 		});
+	});
+};
+
+exports.deleteProfile = (req, res) => {
+	User.findByIdAndDelete(req.user._id, (err, deletedUser) => {
+		if (err) {
+			return res.json(400).json({ error: "User delete failed" });
+		}
+		return res.json(deletedUser);
 	});
 };

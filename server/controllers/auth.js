@@ -9,7 +9,7 @@ exports.signup = (req, res) => {
 			return res.status(400).json({ error: err.message });
 		}
 		const { _id, email, username, role } = user;
-		res.json({ user: { _id, email, username, role } });
+		return res.json({ user: { _id, email, username, role } });
 	});
 };
 

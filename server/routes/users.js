@@ -1,10 +1,16 @@
 const router = require("express").Router();
-const { userById, update } = require("../controllers/auth");
+const { update, deleteProfile } = require("../controllers/user");
 const { isAuth } = require("../utils/utils");
+const { userUpdateValidator } = require("../validators/user");
 
-router.get("/secret/:user_id", isAuth, isAdmin, (req, res) => {
-	res.json({ user: req.profile });
-});
-router.get("/", isAuth, read);
-router.put("/", isAuth, update);
+// @route    PUT api/users/me
+// @desc     Update current user
+// @access   Private
+router.put("/:user_id", isAuth, userUpdateValidator, update);
+
+// @route    DELETE api/users/me
+// @desc     Delete current user
+// @access   Private
+router.delete("/:user_id", isAuth, deleteProfile);
+
 module.exports = router;
