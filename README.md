@@ -11,6 +11,6 @@ A forum app that serves as a channel for ideas and knowledge to disseminate. Bui
   
 # Libraries and Frameworks Used
 
-&nbsp;&nbsp;&nbsp;&nbsp; :heavy_check_mark: Node
-&nbsp;&nbsp;&nbsp;&nbsp; :heavy_check_mark: Express
-&nbsp;&nbsp;&nbsp;&nbsp; :heavy_check_mark: MongoDB/Mongoose
+&nbsp;&nbsp;&nbsp;&nbsp; :heavy_check_mark: Node<br />
+&nbsp;&nbsp;&nbsp;&nbsp; :heavy_check_mark: Express<br />
+&nbsp;&nbsp;&nbsp;&nbsp; :heavy_check_mark: MongoDB/Mongoose<br />
