@@ -21,6 +21,14 @@ app.get("/", (req, res) => {
 	res.send("nice");
 });
 
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "/../client/index.html"));
+});
+app.use((err, req, res, next) => {
+	const status = err.name && err.name === "ValidationError" ? 400 : 500;
+	res.status(status).send({ message: err.message });
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
 	console.log(`listening on port ${5000}`);
