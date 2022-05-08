@@ -15,6 +15,6 @@ router.post("/signin", userSigninValidator, signin);
 // @route    POST api/auth/signup
 // @desc     Register new user
 // @access   Public
-router.post("/signup", userSignypValidator, signup);
+router.post("/signup", userSignupValidator, signup);
 
 module.exports = router;

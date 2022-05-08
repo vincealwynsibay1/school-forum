@@ -1,8 +1,6 @@
-import Profile from "../models/Profile";
-
 const jwt = require("jsonwebtoken");
 
-export const generateToken = (id) => {
+module.exports.generateToken = (id) => {
 	return jwt.sign(
 		{
 			_id: id,
@@ -12,7 +10,7 @@ export const generateToken = (id) => {
 	);
 };
 
-export const isAuth = (req, res, next) => {
+module.exports.isAuth = (req, res, next) => {
 	const bearerToken = req.header("x-auth-bearerToken");
 
 	if (!bearerToken) {
@@ -37,7 +35,7 @@ export const isAuth = (req, res, next) => {
 	}
 };
 
-export const isAdmin = (req, res, next) => {
+module.exports.isAdmin = (req, res, next) => {
 	if (req.user && req.user.role === "admin") {
 		next();
 	} else {

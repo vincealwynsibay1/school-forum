@@ -6,6 +6,7 @@ const {
 	getAll,
 	join,
 	updateModerators,
+	leave,
 } = require("../controllers/group");
 const { isAuth } = require("../utils/utils");
 
@@ -49,6 +50,6 @@ router.put("/:group_id/leave", isAuth, leave);
 // @route PUT api/groups/:group_id/moderators
 // @desc  Update group moderators
 // @access Private
-router.get("/:group_id/leave", isAuth, updateModerators);
+router.get("/:group_id/moderators", isAuth, updateModerators);
 
 module.exports = router;

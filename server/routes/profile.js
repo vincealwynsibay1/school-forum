@@ -37,3 +37,5 @@ router.put("/:user_id", isAuth, getProfileById);
 // @desc     Delete profile
 // @access   Private
 router.delete("/:user_id", isAuth, deleteProfile);
+
+module.exports = router;

@@ -4,8 +4,6 @@ const connectDB = () => {
 	mongoose
 		.connect(process.env.MONGODB_URI, {
 			useNewUrlParser: true,
-			useCreateIndex: true,
-			useFindAndModify: false,
 			useUnifiedTopology: true,
 		})
 		.then(() => {
@@ -14,4 +12,4 @@ const connectDB = () => {
 		.catch((err) => console.error(err.message));
 };
 
-export default connectDB;
+module.exports = connectDB;

@@ -10,20 +10,19 @@ const morgan = require("morgan");
 
 const app = express();
 
+// middleware
 app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(cors());
 
 // routes
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/users", require("./routes/users"));
+app.use("/api/profile", require("./routes/profile"));
+app.use("/api/group", require("./routes/groups"));
+app.use("/api/posts", require("./routes/posts"));
 
-app.get("/", (req, res) => {
-	res.send("nice");
-});
-
-app.get("*", (req, res) => {
-	res.sendFile(path.join(__dirname, "/../client/index.html"));
-});
 app.use((err, req, res, next) => {
 	const status = err.name && err.name === "ValidationError" ? 400 : 500;
 	res.status(status).send({ message: err.message });

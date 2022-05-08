@@ -45,17 +45,6 @@ exports.update = asyncHandler(async (req, res) => {
 	return res.json(updatedGroup);
 });
 
-exports.updateModerators = asyncHandler(async (req, res) => {
-	const group = await Group.findById(req.params.group_id);
-	if (group.moderators.includes(req.user._id)) {
-		await Group.updateOne(
-			{ id: req.params.group_id },
-			{ $push: { moderators: req.body.user } }
-		);
-	}
-	return res.json(group);
-});
-
 exports.deleteGroup = asyncHandler(async (req, res) => {
 	await Group.findById(req.params.group_id);
 	if (group.moderators.includes(req.user._id)) {
@@ -77,5 +66,16 @@ exports.leave = asyncHandler(async (req, res) => {
 			members: this.members.filter((member) => member !== req.user._id),
 		},
 	});
+	return res.json(group);
+});
+
+exports.updateModerators = asyncHandler(async (req, res) => {
+	const group = await Group.findById(req.params.group_id);
+	if (group.moderators.includes(req.user._id)) {
+		await Group.updateOne(
+			{ id: req.params.group_id },
+			{ $push: { moderators: req.body.user } }
+		);
+	}
 	return res.json(group);
 });
