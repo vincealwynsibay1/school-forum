@@ -18,14 +18,14 @@ export const isAuth = (req, res, next) => {
 	if (!bearerToken) {
 		return res
 			.status(401)
-			.json({ error: "No token, authorization not allowed" });
+			.json({ message: "No token, authorization not allowed" });
 	}
 
 	try {
 		const token = token.slice(7, bearerToken.length);
 		jwt.verify(token, process.env.JWT_SECRET, (err, data) => {
 			if (err) {
-				res.status(401).json({ error: "Invalid Token" });
+				res.status(401).json({ message: "Invalid Token" });
 			} else {
 				req.user = data;
 				next();
@@ -33,7 +33,7 @@ export const isAuth = (req, res, next) => {
 		});
 	} catch (err) {
 		console.error("Something wrong with auth middleware");
-		res.status(500).json({ error: "Server Error" });
+		res.status(500).json({ message: "Server Error" });
 	}
 };
 
