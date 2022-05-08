@@ -44,13 +44,6 @@ exports.deleteUser = expressAsync(async (req, res) => {
 	}
 
 	const deletedUser = User.deleteOne({ _id: req.params.user_id });
-	if (!deletedUser) {
-		return res.json(400).json({ error: "User delete failed" });
-	} else {
-		Profile.updateOne(
-			{ _id: req.params.user_id },
-			{ $pull: { user_id: user._id } }
-		);
-		return res.json(deletedUser);
-	}
+	await Profile.findOneAndDelete({ user_id: user._id });
+	return res.json(deletedUser);
 });

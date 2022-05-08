@@ -42,4 +42,13 @@ const profileSchema = new mongoose.Schema({
 	],
 });
 
+profileSchema.pre("remove", async function (next) {
+	this.model("Group").update(
+		{ members: { $in: groups.members } },
+		{ $pull: { member: profile.user_id } },
+		{ multi: true },
+		next
+	);
+});
+
 module.exports = mongoose.model("Profile", profileSchema);
