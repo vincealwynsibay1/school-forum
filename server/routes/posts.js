@@ -10,6 +10,10 @@ const {
 	createComment,
 } = require("../controllers/post");
 const { isAuth } = require("../utils/utils");
+const {
+	createAndUpdatePostValidator,
+	createCommentValidator,
+} = require("../validators/post");
 
 const router = require("express").Router({ mergeParams: true });
 
@@ -26,12 +30,12 @@ router.get("/:post_id", getById);
 // @route  POST api/posts/
 // @desc   Create new post
 // @access Private
-router.post("/", isAuth, create);
+router.post("/", isAuth, createAndUpdatePostValidator, create);
 
 // @route  PUT api/posts/:post_id
 // @desc   Update post
 // @access Private
-router.put("/:post_id", isAuth, update);
+router.put("/:post_id", isAuth, createAndUpdatePostValidator, update);
 
 // @route  DELETE api/posts/:post_id
 // @desc   Delete post
@@ -51,7 +55,12 @@ router.put("/downvote/:post_id", isAuth, downvote);
 // @route  POST api/posts/:post_id/comments
 // @desc   Create reply comment
 // @access Private
-router.post("/:post_id/comments", isAuth, createComment);
+router.post(
+	"/:post_id/comments",
+	isAuth,
+	createCommentValidator,
+	createComment
+);
 
 // @route  DELETE api/posts/:post_id/comments/:comment_id
 // @desc   Delete comment
