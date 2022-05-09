@@ -9,8 +9,8 @@ exports.getCurrent = asyncHandler(async (req, res) => {
 		.populate("posts")
 		.populate("comments")
 		.populate("groups")
-		.populate("followingCount")
-		.populate("followerCount");
+		.populate("following")
+		.populate("followers");
 
 	if (!profile) {
 		return res.status(400).json({
@@ -44,7 +44,7 @@ exports.getAll = asyncHandler(async (req, res) => {
 
 	if (sort) {
 		if (sort === "top") {
-			profiles = profiles.sort({ followerCount: -1 });
+			profiles = profiles.sort({ followers: -1 });
 		}
 	}
 
@@ -66,7 +66,7 @@ exports.create = asyncHandler(async (req, res) => {
 });
 
 exports.updateBio = asyncHandler(async (req, res) => {
-	const profile = await Profile.findOne();
+	const profile = await Profile.findOne({ user_id: req.user._id });
 
 	if (!profile) {
 		return res.status(400).json({ error: "Profile does not exist" });
@@ -86,7 +86,7 @@ exports.updateBio = asyncHandler(async (req, res) => {
 });
 
 exports.deleteProfile = asyncHandler(async (req, res) => {
-	const profile = await Profile.findOne();
+	const profile = await Profile.findOne({ user_id: req.user._id });
 
 	if (!profile) {
 		return res.status(400).json({ error: "Profile does not exist" });
@@ -104,4 +104,34 @@ exports.deleteProfile = asyncHandler(async (req, res) => {
 		{ $pull: { user_id: user._id } }
 	);
 	return res.json(deletedProfile);
+});
+
+exports.follow = asyncHandler(async (req, res) => {
+	const profile = await Profile.findOne({ user_id: req.user._id });
+
+	if (profile.followers.some((f) => f.toString() === req.user._id)) {
+		return res.status(400).json({ message: "User already followed" });
+	}
+
+	profile.followers.unshift(req.user._id);
+
+	const savedProfile = await profile.save();
+	return res.json(savedProfile);
+});
+
+exports.unfollow = asyncHandler(async (req, res) => {
+	const profile = await Profile.findOne({ user_id: req.user._id });
+
+	if (!profile.followers.some((f) => f.toString() === req.user._id)) {
+		return res
+			.status(400)
+			.json({ message: "User has not yet been followed" });
+	}
+
+	profile.followers = profile.followers.filter(
+		(f) => f.toString() !== req.user._id
+	);
+
+	const savedProfile = await profile.save();
+	return res.json(savedProfile);
 });

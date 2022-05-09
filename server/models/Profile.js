@@ -31,13 +31,13 @@ const profileSchema = new mongoose.Schema({
 			ref: "Comment",
 		},
 	],
-	followerCount: [
+	followers: [
 		{
 			type: ObjectId,
 			ref: "User",
 		},
 	],
-	followingCount: [
+	following: [
 		{
 			type: ObjectId,
 			ref: "User",
@@ -64,6 +64,30 @@ profileSchema.pre("remove", async (next) => {
 				.update(
 					{ _id: groupId },
 					{ $pull: { moderators: profile.user_id } }
+				);
+		});
+	}
+
+	// remove the profile on the follower's profile's following array
+	if (profile.followers && profile.followers.length > 0) {
+		profile.followers.forEach((follower) => {
+			profile
+				.model("Profile")
+				.update(
+					{ _id: follower },
+					{ $pull: { following: profile.user_id } }
+				);
+		});
+	}
+
+	// remove the profile on the followed profile's followers array
+	if (profile.following && profile.followers.length > 0) {
+		profile.following.forEach((followed) => {
+			profile
+				.model("Profile")
+				.update(
+					{ _id: followed },
+					{ $pull: { followers: req.user._id } }
 				);
 		});
 	}

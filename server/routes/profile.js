@@ -5,6 +5,8 @@ const {
 	create,
 	getCurrent,
 	getProfileById,
+	follow,
+	unfollow,
 } = require("../controllers/profile");
 
 // @route    GET api/profile/me
@@ -18,6 +20,21 @@ router.get("/me", isAuth, getCurrent);
 router.get("/", getAll);
 
 // @route    GET api/profile/:user_id
+// @desc     Get current users profile
+// @access   Public
+router.get("/:user_id");
+
+// @route    PUT api/profile/:user_id/follow
+// @desc     Follow a user
+// @access   Private
+router.get("/:user_id/follow", isAuth, follow);
+
+// @route    PUT api/profile/:user_id/unfollow
+// @desc     Unfollow a user
+// @access   Private
+router.get("/:user_id/unfollow", isAuth, unfollow);
+
+// @route    PUT api/profile/:user_id
 // @desc     Get current users profile
 // @access   Public
 router.get("/:user_id");

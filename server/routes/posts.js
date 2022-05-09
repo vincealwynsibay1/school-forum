@@ -8,6 +8,7 @@ const {
 	downvote,
 	deleteComment,
 	createComment,
+	getAllCommentsInPost,
 } = require("../controllers/post");
 const { isAuth } = require("../utils/utils");
 const {
@@ -52,8 +53,13 @@ router.put("/upvote/:post_id", isAuth, upvote);
 // @access Private
 router.put("/downvote/:post_id", isAuth, downvote);
 
+// @route  GET api/posts/:post_id/comments
+// @desc   Get all comments in Post
+// @access Private
+router.get("/:post_id/comments", getAllCommentsInPost);
+
 // @route  POST api/posts/:post_id/comments
-// @desc   Create reply comment
+// @desc   Create comment
 // @access Private
 router.post(
 	"/:post_id/comments",
