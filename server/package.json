@@ -4,6 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
+		"start": "node ./index",
 		"dev": "nodemon ./index"
 	},
 	"keywords": [],
@@ -12,6 +13,7 @@
 	"dependencies": {
 		"bcryptjs": "^2.4.3",
 		"body-parser": "^1.20.0",
+		"cloudinary": "^1.29.1",
 		"cookie-parser": "^1.4.6",
 		"cors": "^2.8.5",
 		"dotenv": "^16.0.0",

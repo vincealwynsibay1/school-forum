@@ -2,6 +2,11 @@ const User = require("../models/User");
 const Profile = require("../models/Profile");
 const asyncHandler = require("express-async-handler");
 
+exports.getAll = asyncHandler(async (req, res) => {
+	const users = User.find({});
+	return res.json(users);
+});
+
 exports.update = asyncHandler(async (req, res) => {
 	const { username, password } = req.body;
 
