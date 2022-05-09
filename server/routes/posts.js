@@ -15,7 +15,9 @@ const {
 	createAndUpdatePostValidator,
 	createCommentValidator,
 } = require("../validators/post");
-
+const multer = require("multer");
+const { storage } = require("../config/cloudinary");
+const upload = multer({ storage });
 const router = require("express").Router({ mergeParams: true });
 
 // @route  GET api/posts/
@@ -31,7 +33,13 @@ router.get("/:post_id", getById);
 // @route  POST api/posts/
 // @desc   Create new post
 // @access Private
-router.post("/", isAuth, createAndUpdatePostValidator, create);
+router.post(
+	"/",
+	isAuth,
+	upload.array("images"),
+	createAndUpdatePostValidator,
+	create
+);
 
 // @route  PUT api/posts/:post_id
 // @desc   Update post

@@ -29,6 +29,7 @@ exports.create = asyncHandler(async (req, res) => {
 		user_id: req.user._id,
 		group: group._id,
 	});
+	post.images = req.files.map((f) => ({ url: f.url, fileName: f.fileName }));
 	const savedPost = await post.save();
 	await Group.updateOne(
 		{ _id: req.params.group_id },

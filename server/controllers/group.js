@@ -22,7 +22,16 @@ exports.getByName = asyncHandler(async (req, res) => {
 
 exports.create = asyncHandler(async (req, res) => {
 	const { name } = req.body;
-	const group = new Group({ name, moderators: [req.user._id] });
+	const photoUrl = gravatar.url(email, {
+		s: "200",
+		r: "pg",
+		d: "retro",
+	});
+	const group = new Group({
+		name,
+		moderators: [req.user._id],
+		groupPhoto: { url: photoUrl, fileName: "retro" },
+	});
 
 	await group.save();
 	return res.json(savedGroup);
@@ -49,6 +58,23 @@ exports.update = asyncHandler(async (req, res) => {
 		);
 	}
 	return res.json(updatedGroup);
+});
+
+exports.updatePhoto = asyncHandler(async (req, res) => {
+	const group = await Group.findOne({ user_id: req.user._id });
+
+	if (group.moderators.includes(req.user._id)) {
+		const updatedProfile = await Group.updateOne(
+			{ id: req.params.group_id },
+			{
+				$set: {
+					avatar: { url: req.file.path, fileName: req.file.fileName },
+				},
+			}
+		);
+	}
+
+	return res.json(updatedProfile);
 });
 
 exports.deleteGroup = asyncHandler(async (req, res) => {

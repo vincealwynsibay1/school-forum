@@ -7,11 +7,15 @@ const {
 	join,
 	updateModerators,
 	leave,
+	updatePhoto,
 } = require("../controllers/group");
 const Group = require("../models/Group");
 const { isAuth, paginatedResults } = require("../utils/utils");
 const { createGroupValidator } = require("../validators/group");
 
+const multer = require("multer");
+const { storage } = require("../config/cloudinary");
+const upload = multer({ storage });
 const router = require("express").Router();
 
 // @route GET api/groups/
@@ -33,6 +37,11 @@ router.post("/:group_id", isAuth, createGroupValidator, create);
 // @desc  Update group's name, description, and/or rules
 // @access Private
 router.put("/:group_id", isAuth, update);
+
+// @route PUT api/groups/:group_id/photo
+// @desc  Update group's photo
+// @access Private
+router.put("/:group_id", isAuth, upload.single("groupPhoto"), updatePhoto);
 
 // @route DELETE api/groups/:group_id
 // @desc  Delete group

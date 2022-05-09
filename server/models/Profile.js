@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Comment = require("./Comment");
+const ImageSchema = require("./ImageSchema");
 const Post = require("./Post");
 const { ObjectId } = mongoose.Schema;
 const profileSchema = new mongoose.Schema({
@@ -7,9 +8,7 @@ const profileSchema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 	},
 	username: { type: String, required: true },
-	avatar: {
-		type: String,
-	},
+	avatar: ImageSchema,
 	bio: {
 		type: String,
 	},

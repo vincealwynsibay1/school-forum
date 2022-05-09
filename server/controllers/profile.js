@@ -36,9 +36,17 @@ exports.getAll = asyncHandler(async (req, res) => {
 
 exports.create = asyncHandler(async (req, res) => {
 	const { user_id, email, username } = req.user;
-	const avatar = gravatar.url(email, { s: "200", r: "pg", d: "identicon" });
+	const avatarUrl = gravatar.url(email, {
+		s: "200",
+		r: "pg",
+		d: "identicon",
+	});
 
-	const profile = new User({ user_id, avatar, username });
+	const profile = new User({
+		user_id,
+		avatar: { url: avatarUrl, fileName: "identicon" },
+		username,
+	});
 	const savedProfile = await profile.save(err, savedProfile);
 	if (!savedProfile) {
 		console.log("PROFILE CREATION ERROR");
@@ -61,11 +69,35 @@ exports.updateBio = asyncHandler(async (req, res) => {
 			.json({ error: "Cannot update someone else's profile'" });
 	}
 
-	Profile.updateOne(
+	const updatedProfile = await Profile.updateOne(
 		{ user_id: req.user._id },
 		{ $set: { bio: req.body.bio } }
 	);
 	res.json(updatedProfile);
+});
+
+exports.updateAvatar = asyncHandler(async (req, res) => {
+	const profile = await Profile.findOne({ user_id: req.user._id });
+
+	if (!profile) {
+		return res.status(400).json({ error: "Profile does not exist" });
+	}
+
+	if (profile.user_id !== req.user._id) {
+		return res
+			.status(401)
+			.json({ erorr: "Cannot update someone else's profile" });
+	}
+
+	const updatedProfile = await Profile.updateOne(
+		{ user_id: req.user._id },
+		{
+			$set: {
+				avatar: { url: req.file.path, fileName: req.file.fileName },
+			},
+		}
+	);
+	return res.json(updatedProfile);
 });
 
 exports.deleteProfile = asyncHandler(async (req, res) => {
@@ -81,12 +113,12 @@ exports.deleteProfile = asyncHandler(async (req, res) => {
 			.json({ error: "Cannot update someone else's profile'" });
 	}
 
-	const deletedProfile = Profile.deleteOne({ user_id: req.user._id });
+	await Profile.deleteOne({ user_id: req.user._id });
 	Group.updateOne(
 		{ _id: req.params.user_id },
 		{ $pull: { user_id: user._id } }
 	);
-	return res.json(deletedProfile);
+	return res.json({ message: "Successfully deleted the profile" });
 });
 
 exports.follow = asyncHandler(async (req, res) => {

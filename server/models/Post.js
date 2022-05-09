@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ImageSchema = require("./ImageSchema");
 const { ObjectId } = mongoose.Schema;
 const postSchema = new mongoose.Schema({
 	user_id: {
@@ -12,6 +13,7 @@ const postSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	images: [ImageSchema],
 	group: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "Group",

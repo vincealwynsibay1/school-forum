@@ -1,10 +1,13 @@
 const mongoose = require("mongoose");
+const ImageSchema = require("./ImageSchema");
 const { ObjectId } = mongoose.Schema;
+
 const groupSchema = new mongoose.Schema({
 	name: {
 		type: String,
 		required: true,
 	},
+	groupPhoto: ImageSchema,
 	description: {
 		type: String,
 	},
