@@ -3,9 +3,26 @@ const Group = require("../models/Group");
 const asyncHandler = require("express-async-handler");
 
 exports.getAll = asyncHandler(async (req, res) => {
-	const posts = await Post.find({})
-		.populate("user_id", ["_id", "username"])
-		.populate("group", "name");
+	const { title, sort } = req.query;
+	let posts = null;
+	if (title) {
+		posts = await Post.find({ title: `/.*${title}.*/i` })
+			.populate("user_id", ["_id", "username"])
+			.populate("group", "name");
+	} else {
+		posts = await Post.find({})
+			.populate("user_id", ["_id", "username"])
+			.populate("group", "name");
+	}
+
+	if (sort) {
+		if (sort === "newest") {
+			posts.sort({ created_at: -1 });
+		} else if (sort === "popular") {
+			posts.sort({ upvotes: -1 });
+		}
+	}
+
 	return res.json(posts);
 });
 
@@ -51,7 +68,7 @@ exports.update = asyncHandler(async (req, res) => {
 		await Post.updateOne(
 			{ id: req.params.post_id },
 			{
-				$set: { title, content },
+				$set: { title, content, edited: true },
 			}
 		);
 	}
@@ -80,7 +97,7 @@ exports.upvote = asyncHandler(async (req, res) => {
 	}
 	post.upvotes.unshift(req.user._id);
 	const savedPost = await post.save();
-	return savedPost;
+	return res.json(savedPost);
 });
 
 exports.downvote = asyncHandler(async (req, res) => {
@@ -96,7 +113,22 @@ exports.downvote = asyncHandler(async (req, res) => {
 	);
 	post.upvotes.unshift(req.user._id);
 	const savedPost = await post.save();
-	return savedPost;
+	return res.json(savedPost);
+});
+
+exports.getAllCommentsInPost = asyncHandler(async (req, res) => {
+	const post = await Post.findById(req.params.post_id);
+	const comments = post.comments.sort((a, b) => {
+		if (a.upvotes < b.upvotes) {
+			return -1;
+		}
+		if (a.upvotes > b.upvotes) {
+			return 1;
+		}
+		return 0;
+	});
+
+	return res.json(comments);
 });
 
 exports.createComment = asyncHandler(async (req, res) => {

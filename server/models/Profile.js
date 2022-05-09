@@ -6,6 +6,7 @@ const profileSchema = new mongoose.Schema({
 	user_id: {
 		type: mongoose.Schema.Types.ObjectId,
 	},
+	username: { type: String, required: true },
 	avatar: {
 		type: String,
 	},
@@ -42,6 +43,7 @@ const profileSchema = new mongoose.Schema({
 			ref: "User",
 		},
 	],
+	created_at: { type: Date, required: true, default: Date.now },
 });
 
 // remove the relationships of the to be delete profile on groups the user joined, and delete all posts and comments

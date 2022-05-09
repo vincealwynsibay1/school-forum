@@ -34,6 +34,8 @@ const postSchema = new mongoose.Schema({
 			ref: "Comment",
 		},
 	],
+	edited: { type: Boolean, default: false },
+	created_at: { type: Date, required: true, default: Date.now },
 });
 
 postSchema.pre("remove", async function () {

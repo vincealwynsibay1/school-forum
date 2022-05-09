@@ -31,6 +31,7 @@ const groupSchema = new mongoose.Schema({
 			type: String,
 		},
 	],
+	created_at: { type: Date, required: true, default: Date.now },
 });
 
 groupSchema.pre("remove", async (next) => {

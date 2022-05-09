@@ -31,15 +31,31 @@ exports.getProfileById = asyncHandler(async (req, res) => {
 });
 
 exports.getAll = asyncHandler(async (req, res) => {
-	const profiles = Profile.find().populate("user", ["username"]);
+	const { username, sort } = req.query;
+	let profiles = null;
+	if (username) {
+		profiles = Profile.find({ username: `/.*${username}.*/i` }).populate(
+			"user",
+			["username"]
+		);
+	} else {
+		profiles = Profile.find().populate("user", ["username"]);
+	}
+
+	if (sort) {
+		if (sort === "top") {
+			profiles = profiles.sort({ followerCount: -1 });
+		}
+	}
+
 	return res.json(profiles);
 });
 
 exports.create = asyncHandler(async (req, res) => {
-	const { user_id, email } = req.user;
+	const { user_id, email, username } = req.user;
 	const avatar = gravatar.url(email, { s: "200", r: "pg", d: "identicon" });
 
-	const profile = new User({ user_id, avatar });
+	const profile = new User({ user_id, avatar, username });
 	const savedProfile = await profile.save(err, savedProfile);
 	if (!savedProfile) {
 		console.log("PROFILE CREATION ERROR");

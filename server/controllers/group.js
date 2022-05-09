@@ -2,7 +2,22 @@ const Group = require("../models/Group");
 const asyncHandler = require("express-async-handler");
 
 exports.getAll = asyncHandler(async (req, res) => {
-	const groups = await Group.find({});
+	const { name, sort } = req.query;
+
+	const groups = null;
+
+	if (name) {
+		groups = await Group.find({ name: `/.*${name}.*/i` });
+	} else {
+		groups = await Group.find({});
+	}
+
+	if (sort) {
+		if (sort === "top") {
+			groups = groups.sort({ members: -1 });
+		}
+	}
+
 	return res.json(groups);
 });
 
