@@ -1,7 +1,8 @@
 const User = require("../models/User");
 const Profile = require("../models/Profile");
+const asyncHandler = require("express-async-handler");
 
-exports.update = expressAsync(async (req, res) => {
+exports.update = asyncHandler(async (req, res) => {
 	const { username, password } = req.body;
 
 	const user = User.findOneById(req.params.user_id);
@@ -30,7 +31,7 @@ exports.update = expressAsync(async (req, res) => {
 	}
 });
 
-exports.deleteUser = expressAsync(async (req, res) => {
+exports.deleteUser = asyncHandler(async (req, res) => {
 	const user = await User.findById(req.params.user_id);
 	if (!user) {
 		return res.status(400).json({ error: "User not found" });
@@ -44,6 +45,8 @@ exports.deleteUser = expressAsync(async (req, res) => {
 	}
 
 	const deletedUser = User.deleteOne({ _id: req.params.user_id });
+
 	await Profile.findOneAndDelete({ user_id: user._id });
+
 	return res.json(deletedUser);
 });

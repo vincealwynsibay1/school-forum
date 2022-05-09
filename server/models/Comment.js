@@ -23,10 +23,41 @@ const commentSchema = new mongoose.Schema({
 	],
 	replies: [
 		{
-			type: ObjectId,
-			ref: "Comment",
+			user_id: {
+				type: ObjectId,
+			},
+			content: {
+				type: String,
+				required: true,
+			},
+			upvotes: [
+				{
+					type: ObjectId,
+					ref: "User",
+				},
+			],
+			downvotes: [
+				{
+					type: ObjectId,
+					ref: "User",
+				},
+			],
 		},
 	],
+});
+
+commentSchema.pre("remove", async (next) => {
+	const comment = this;
+
+	// remove the comment on the profile's comment array
+	comment
+		.model("Profile")
+		.update({ comments: comment._id }, { $pull: { comments: comment_id } });
+
+	// remove the comment on the post
+	comment
+		.model("Post")
+		.update({ comments: comment._id }, { $pull: { comments: comment_id } });
 });
 
 module.exports = mongoose.model("Comment", commentSchema);

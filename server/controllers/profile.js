@@ -2,8 +2,9 @@ const User = require("../models/User");
 const Profile = require("../models/Profile");
 const gravatar = require("gravatar");
 const Group = require("../models/Group");
+const asyncHandler = require("express-async-handler");
 
-exports.getCurrent = expressAsync(async (req, res) => {
+exports.getCurrent = asyncHandler(async (req, res) => {
 	const profile = await Profile.findOne({ user_id: req.user._id })
 		.populate("posts")
 		.populate("comments")
@@ -19,7 +20,7 @@ exports.getCurrent = expressAsync(async (req, res) => {
 	return res.json(profile);
 });
 
-exports.getProfileById = expressAsync(async (req, res) => {
+exports.getProfileById = asyncHandler(async (req, res) => {
 	const user = await User.findById(req.params.user_id);
 	const profile = Profile.findOne({ user_id: user._id });
 	if (!profile) {
@@ -29,12 +30,12 @@ exports.getProfileById = expressAsync(async (req, res) => {
 	return res.json(profile);
 });
 
-exports.getAll = expressAsync(async (req, res) => {
+exports.getAll = asyncHandler(async (req, res) => {
 	const profiles = Profile.find().populate("user", ["username"]);
 	return res.json(profiles);
 });
 
-exports.create = expressAsync(async (req, res) => {
+exports.create = asyncHandler(async (req, res) => {
 	const { user_id, email } = req.user;
 	const avatar = gravatar.url(email, { s: "200", r: "pg", d: "identicon" });
 
@@ -48,7 +49,7 @@ exports.create = expressAsync(async (req, res) => {
 	}
 });
 
-exports.updateBio = expressAsync(async (req, res) => {
+exports.updateBio = asyncHandler(async (req, res) => {
 	const profile = await Profile.findOne();
 
 	if (!profile) {
@@ -68,7 +69,7 @@ exports.updateBio = expressAsync(async (req, res) => {
 	res.json(updatedProfile);
 });
 
-exports.deleteProfile = expressAsync(async (req, res) => {
+exports.deleteProfile = asyncHandler(async (req, res) => {
 	const profile = await Profile.findOne();
 
 	if (!profile) {

@@ -9,6 +9,7 @@ const {
 	deleteComment,
 	createComment,
 } = require("../controllers/post");
+const { isAuth } = require("../utils/utils");
 
 const router = require("express").Router({ mergeParams: true });
 

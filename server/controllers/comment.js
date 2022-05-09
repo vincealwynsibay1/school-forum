@@ -1,7 +1,6 @@
 const Comment = require("../models/Comment");
 const Post = require("../models/Post");
 const asyncHandler = require("express-async-handler");
-const asyncHandler = require("express-async-handler");
 
 exports.createReply = asyncHandler(async (req, res) => {
 	const { content } = req.body;

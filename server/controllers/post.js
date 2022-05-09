@@ -1,6 +1,6 @@
 const Post = require("../models/Post");
-const asyncHandler = require("express-async-handler");
 const Group = require("../models/Group");
+const asyncHandler = require("express-async-handler");
 
 exports.getAll = asyncHandler(async (req, res) => {
 	const posts = await Post.find({})
@@ -32,8 +32,12 @@ exports.create = asyncHandler(async (req, res) => {
 		user_id: req.user._id,
 		group: group._id,
 	});
-	await post.save();
-	return res.json(post);
+	const savedPost = await post.save();
+	await Group.updateOne(
+		{ _id: req.params.group_id },
+		{ $push: { members: savedPost._id } }
+	);
+	return res.json(savedPost);
 });
 
 exports.update = asyncHandler(async (req, res) => {
@@ -44,7 +48,7 @@ exports.update = asyncHandler(async (req, res) => {
 		req.user === post.user_id &&
 		group.members.some((member) => member.toString() === req.user._id)
 	) {
-		Post.updateOne(
+		await Post.updateOne(
 			{ id: req.params.post_id },
 			{
 				$set: { title, content },
@@ -95,7 +99,7 @@ exports.downvote = asyncHandler(async (req, res) => {
 	return savedPost;
 });
 
-exports.createComment = expressAsyncHandler(async (req, res) => {
+exports.createComment = asyncHandler(async (req, res) => {
 	const post = await Post.findById(req.params.post_id);
 	const { content } = req.body;
 	const comment = new Comment({
@@ -103,8 +107,8 @@ exports.createComment = expressAsyncHandler(async (req, res) => {
 		user_id: req.user._id,
 		username: req.user.username,
 	});
-	post.comments.unshift(comment);
 	const savedComment = await comment.save();
+	post.comments.unshift(savedComment._id);
 	return res.json(savedComment);
 });
 
