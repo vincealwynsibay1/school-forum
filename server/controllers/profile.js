@@ -31,24 +31,7 @@ exports.getProfileById = asyncHandler(async (req, res) => {
 });
 
 exports.getAll = asyncHandler(async (req, res) => {
-	const { username, sort } = req.query;
-	let profiles = null;
-	if (username) {
-		profiles = Profile.find({ username: `/.*${username}.*/i` }).populate(
-			"user",
-			["username"]
-		);
-	} else {
-		profiles = Profile.find().populate("user", ["username"]);
-	}
-
-	if (sort) {
-		if (sort === "top") {
-			profiles = profiles.sort({ followers: -1 });
-		}
-	}
-
-	return res.json(profiles);
+	return res.json(res.paginatedResults);
 });
 
 exports.create = asyncHandler(async (req, res) => {

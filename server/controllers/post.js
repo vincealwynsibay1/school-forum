@@ -3,27 +3,7 @@ const Group = require("../models/Group");
 const asyncHandler = require("express-async-handler");
 
 exports.getAll = asyncHandler(async (req, res) => {
-	const { title, sort } = req.query;
-	let posts = null;
-	if (title) {
-		posts = await Post.find({ title: `/.*${title}.*/i` })
-			.populate("user_id", ["_id", "username"])
-			.populate("group", "name");
-	} else {
-		posts = await Post.find({})
-			.populate("user_id", ["_id", "username"])
-			.populate("group", "name");
-	}
-
-	if (sort) {
-		if (sort === "newest") {
-			posts.sort({ created_at: -1 });
-		} else if (sort === "popular") {
-			posts.sort({ upvotes: -1 });
-		}
-	}
-
-	return res.json(posts);
+	return res.json(res.paginatedResults);
 });
 
 exports.getById = asyncHandler(async (req, res) => {
@@ -117,18 +97,7 @@ exports.downvote = asyncHandler(async (req, res) => {
 });
 
 exports.getAllCommentsInPost = asyncHandler(async (req, res) => {
-	const post = await Post.findById(req.params.post_id);
-	const comments = post.comments.sort((a, b) => {
-		if (a.upvotes < b.upvotes) {
-			return -1;
-		}
-		if (a.upvotes > b.upvotes) {
-			return 1;
-		}
-		return 0;
-	});
-
-	return res.json(comments);
+	return res.json(res.paginatedResults);
 });
 
 exports.createComment = asyncHandler(async (req, res) => {

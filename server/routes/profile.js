@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { isAuth } = require("../utils/utils.js");
+const { isAuth, paginatedResults } = require("../utils/utils.js");
 const {
 	getAll,
 	create,
@@ -17,7 +17,7 @@ router.get("/me", isAuth, getCurrent);
 // @route    GET api/profile
 // @desc     Get all users profile
 // @access   Public
-router.get("/", getAll);
+router.get("/", paginatedResults, getAll);
 
 // @route    GET api/profile/:user_id
 // @desc     Get current users profile

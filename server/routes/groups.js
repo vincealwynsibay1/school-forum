@@ -8,7 +8,8 @@ const {
 	updateModerators,
 	leave,
 } = require("../controllers/group");
-const { isAuth } = require("../utils/utils");
+const Group = require("../models/Group");
+const { isAuth, paginatedResults } = require("../utils/utils");
 const { createGroupValidator } = require("../validators/group");
 
 const router = require("express").Router();
@@ -16,7 +17,7 @@ const router = require("express").Router();
 // @route GET api/groups/
 // @desc GET all groups
 // @access Public
-router.get("/", getAll);
+router.get("/", paginatedResults(Group), getAll);
 
 // @route GET api/groups/:group_id
 // @desc GET group by id

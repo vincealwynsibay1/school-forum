@@ -10,7 +10,7 @@ const {
 	createComment,
 	getAllCommentsInPost,
 } = require("../controllers/post");
-const { isAuth } = require("../utils/utils");
+const { isAuth, paginatedResults } = require("../utils/utils");
 const {
 	createAndUpdatePostValidator,
 	createCommentValidator,
@@ -21,7 +21,7 @@ const router = require("express").Router({ mergeParams: true });
 // @route  GET api/posts/
 // @desc   Get all posts
 // @access Public
-router.get("/", getAll);
+router.get("/", paginatedResults, getAll);
 
 // @route  GET api/posts/:post_id
 // @desc   Get post by id
@@ -56,7 +56,7 @@ router.put("/downvote/:post_id", isAuth, downvote);
 // @route  GET api/posts/:post_id/comments
 // @desc   Get all comments in Post
 // @access Private
-router.get("/:post_id/comments", getAllCommentsInPost);
+router.get("/:post_id/comments", paginatedResults, getAllCommentsInPost);
 
 // @route  POST api/posts/:post_id/comments
 // @desc   Create comment
