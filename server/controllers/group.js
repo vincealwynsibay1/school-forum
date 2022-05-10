@@ -22,7 +22,7 @@ exports.getByName = asyncHandler(async (req, res) => {
 
 exports.create = asyncHandler(async (req, res) => {
 	const { name } = req.body;
-	const photoUrl = gravatar.url("group@group", {
+	const photoUrl = gravatar.url(`${name}@group`, {
 		s: "200",
 		r: "pg",
 		d: "retro",

@@ -43,7 +43,7 @@ module.exports.descriptors = [
 	"Diamond",
 ];
 
-const communities = [
+module.exports.communities = [
 	"Make Money Online",
 	"Finance",
 	"Travel",
