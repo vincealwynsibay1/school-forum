@@ -22,6 +22,27 @@ const topics = [
 	"Contribution of Technology in Education",
 ];
 
+module.exports.descriptors = [
+	"Forest",
+	"Ancient",
+	"Petrified",
+	"Roaring",
+	"Cascade",
+	"Tumbling",
+	"Silent",
+	"Redwood",
+	"Bullfrog",
+	"Maple",
+	"Misty",
+	"Elk",
+	"Grizzly",
+	"Ocean",
+	"Sea",
+	"Sky",
+	"Dusty",
+	"Diamond",
+];
+
 const communities = [
 	"Make Money Online",
 	"Finance",

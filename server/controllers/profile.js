@@ -42,12 +42,12 @@ exports.create = asyncHandler(async (req, res) => {
 		d: "identicon",
 	});
 
-	const profile = new User({
+	const profile = new Profile({
 		user_id,
 		avatar: { url: avatarUrl, fileName: "identicon" },
 		username,
 	});
-	const savedProfile = await profile.save(err, savedProfile);
+	const savedProfile = await profile.save(savedProfile);
 	if (!savedProfile) {
 		console.log("PROFILE CREATION ERROR");
 		return res.status(400).json({ error: "Profile Creation Failed." });
