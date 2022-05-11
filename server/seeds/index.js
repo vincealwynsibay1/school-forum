@@ -14,7 +14,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 });
 
 const db = mongoose.connection;
-
 const sample = (array) => array[Math.floor(Math.random() * array.length)];
 
 const seedUserAndProfile = async () => {
@@ -42,10 +41,8 @@ const seedUserAndProfile = async () => {
 		});
 		const savedUser = await user.save();
 		users.push(savedUser);
-	}
 
-	// create profiles for each user
-	for (user of users) {
+		// create profiles for each user
 		const avatarUrl = gravatar.url(user.email, {
 			s: "200",
 			r: "pg",
@@ -53,13 +50,14 @@ const seedUserAndProfile = async () => {
 		});
 
 		const profile = new Profile({
-			user_id: user._id,
+			user_id: savedUser._id,
 			avatar: { url: avatarUrl, fileName: "identicon" },
-			username: user.username,
+			username: savedUser.username,
 		});
 		const savedProfile = await profile.save(profile);
 		profiles.push(savedProfile);
 	}
+
 	console.log("Seeding User and Profile Complete.");
 	return { users, profiles };
 };
@@ -110,6 +108,7 @@ const seedPosts = async (users, groups) => {
 				for (let k = 0; k < 2; k++) {
 					const reply = new Comment({
 						user_id: sample(users),
+
 						content:
 							"Lorem ipsum dolor sit amet. Vel blanditiis suscipit non internos eveniet et provident dolorem. Et labore inventore vel quia tempora a autem consequatur aut eligendi dolor?",
 					});
@@ -129,7 +128,7 @@ const seedPosts = async (users, groups) => {
 			}
 
 			const post = new Post({
-				title: `${sample(descriptors)} ${topics}`,
+				title: `${sample(descriptors)} ${sample(topics)}`,
 				content:
 					"Lorem ipsum dolor sit amet. Vel blanditiis suscipit non internos eveniet et provident dolorem. Et labore inventore vel quia tempora a autem consequatur aut eligendi dolor?",
 				group: group._id,
@@ -159,6 +158,7 @@ const seedDB = async () => {
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", () => {
 	console.log("Database connected");
+
 	seedDB();
 });
 

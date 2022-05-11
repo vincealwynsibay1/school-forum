@@ -61,6 +61,6 @@ router.put("/:group_id/leave", isAuth, leave);
 // @route PUT api/groups/:group_id/moderators
 // @desc  Update group moderators
 // @access Private
-router.get("/:group_id/moderators", isAuth, updateModerators);
+router.put("/:group_id/moderators", isAuth, updateModerators);
 
 module.exports = router;

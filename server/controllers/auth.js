@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const { generateToken } = require("../utils/utils");
 
 exports.signup = (req, res) => {
 	const { username, email, password } = req.body;
@@ -15,7 +16,7 @@ exports.signup = (req, res) => {
 
 exports.signin = (req, res) => {
 	const { email, password } = req.body;
-
+	console.log(email);
 	User.findOne({ email }, (err, user) => {
 		if (err || !user) {
 			return res.status(400).json({
@@ -30,9 +31,8 @@ exports.signin = (req, res) => {
 		}
 
 		// generate token
-		const token = generateToken(user._id);
 		const { _id, email, username, role } = user;
-
+		const token = generateToken({ _id, email, username, role });
 		// return response to client
 		return res.json({ token, user: { _id, email, username, role } });
 	});

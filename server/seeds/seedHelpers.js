@@ -1,4 +1,4 @@
-const topics = [
+module.exports.topics = [
 	"Technology",
 	"Computer",
 	"Wonder Of Science",

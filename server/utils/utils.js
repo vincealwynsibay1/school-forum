@@ -1,17 +1,12 @@
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
-module.exports.generateToken = (id) => {
-	return jwt.sign(
-		{
-			_id: id,
-		},
-		process.env.JWT_SECRET,
-		{ expiresIn: "7d" }
-	);
+module.exports.generateToken = (user) => {
+	return jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
 module.exports.isAuth = (req, res, next) => {
-	const bearerToken = req.header("x-auth-bearerToken");
+	const bearerToken = req.header("token");
 
 	if (!bearerToken) {
 		return res
@@ -20,7 +15,7 @@ module.exports.isAuth = (req, res, next) => {
 	}
 
 	try {
-		const token = token.slice(7, bearerToken.length);
+		const token = bearerToken.slice(7, bearerToken.length);
 		jwt.verify(token, process.env.JWT_SECRET, (err, data) => {
 			if (err) {
 				res.status(401).json({ message: "Invalid Token" });
@@ -70,91 +65,121 @@ module.exports.paginatedResults = (model) => {
 		}
 
 		try {
-			switch (sort) {
-				case "top":
-					if (model.modelName === "Group") {
-						if (s) {
-							lts.documents = await model
-								.find({ name: `/.*${s}.*/i` })
-								.limit(limit)
-								.sort({ members: -1 })
-								.skip(startIndex);
-						} else {
-							results.documents = await model
-								.find({})
-								.limit(limit)
-								.sort({ members: -1 })
-								.skip(startIndex)
-								.exec();
-						}
-					} else if (model.modelName === "Post") {
-						if (s) {
-							results.documents = await model
-								.find({ title: `/.*${s}.*/i` })
-								.limit(limit)
-								.sort({ upvotes: -1 })
-								.skip(startIndex)
-								.exec();
-						} else {
-							results.documents = await model
-								.find({})
-								.limit(limit)
-								.sort({ upvotes: -1 })
-								.skip(startIndex)
-								.exec();
-						}
-					} else if (model.modelName === "Comment") {
-						results.documents = await model
-							.find({})
-							.limit(limit)
-							.sort({ upvotes: -1 })
-							.skip(startIndex)
-							.exec();
-					}
-					break;
-				case "newest":
-					if (s) {
+			if (sort) {
+				switch (sort) {
+					case "top":
 						if (model.modelName === "Group") {
+							if (s) {
+								lts.documents = await model
+									.find({ name: `/.*${s}.*/i` })
+									.limit(limit)
+									.sort({ members: -1 })
+									.skip(startIndex);
+							} else {
+								results.documents = await model
+									.find({})
+									.limit(limit)
+									.sort({ members: -1 })
+									.skip(startIndex)
+									.exec();
+							}
+						} else if (model.modelName === "Post") {
+							if (s) {
+								results.documents = await model
+									.find({ title: `/.*${s}.*/i` })
+									.limit(limit)
+									.sort({ upvotes: -1 })
+									.skip(startIndex)
+									.exec();
+							} else {
+								results.documents = await model
+									.find({})
+									.limit(limit)
+									.sort({ upvotes: -1 })
+									.skip(startIndex)
+									.exec();
+							}
+						} else if (model.modelName === "Comment") {
 							results.documents = await model
-								.find({ name: `/.*${s}.*/i` })
+								.find({})
 								.limit(limit)
-								.sort({ created_at: -1 })
+								.sort({ upvotes: -1 })
 								.skip(startIndex)
 								.exec();
-						} else if (model.modelName === "Post") {
+						} else if (model.modelName === "Profile") {
 							results.documents = await model
-								.find({ title: `/.*${s}.*/i` })
+								.find({})
+								.limit(limit)
+								.sort({ followers: -1 })
+								.skip(startIndex)
+								.exec();
+							``;
+						}
+						break;
+					case "newest":
+						if (s) {
+							if (model.modelName === "Group") {
+								results.documents = await model
+									.find({ name: `/.*${s}.*/i` })
+									.limit(limit)
+									.sort({ created_at: -1 })
+									.skip(startIndex)
+									.exec();
+							} else if (model.modelName === "Post") {
+								results.documents = await model
+									.find({ title: `/.*${s}.*/i` })
+									.limit(limit)
+									.sort({ created_at: -1 })
+									.skip(startIndex)
+									.exec();
+							}
+						} else {
+							results.documents = await model
+								.find({})
 								.limit(limit)
 								.sort({ created_at: -1 })
 								.skip(startIndex)
 								.exec();
 						}
-					} else {
+						break;
+				}
+			} else {
+				if (s) {
+					if (model.modelName === "Group") {
 						results.documents = await model
-							.find({})
-							.limit(limit)
-							.sort({ created_at: -1 })
-							.skip(startIndex)
-							.exec();
-					}
-					break;
-				default:
-					if (s) {
-						results.documents = await model
-							.find({})
+							.find({ name: `/.*${s}.*/i` })
 							.limit(limit)
 							.skip(startIndex)
 							.exec();
-					} else {
-						s;
+					} else if (model.modelName === "Post") {
+						results.documents = await model
+							.find({ title: `/.*${s}.*/i` })
+							.limit(limit)
+							.skip(startIndex)
+							.exec();
+					} else if (model.modelName === "Profile") {
+						results.documents = await model
+							.find({
+								username: { $regex: `.*${s}.*`, $options: "i" },
+							})
+							.limit(limit)
+							.skip(startIndex)
+							.exec();
 					}
-					break;
+				} else {
+					results.documents = await model
+						.find({})
+						.limit(limit)
+						.skip(startIndex)
+						.exec();
+				}
 			}
 
+			console.log(results);
 			res.paginatedResults = results;
 			next();
 		} catch (err) {
-			res.status(500).json({ error: e.message });
+			res.status(500).json({ error: err.message });
 		}
 	};
 };
