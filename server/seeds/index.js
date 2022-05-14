@@ -54,7 +54,7 @@ const seedUserAndProfile = async () => {
 			avatar: { url: avatarUrl, fileName: "identicon" },
 			username: savedUser.username,
 		});
-		const savedProfile = await profile.save(profile);
+		const savedProfile = await profile.save();
 		profiles.push(savedProfile);
 	}
 
@@ -71,7 +71,7 @@ const seedGroup = async (users) => {
 		const moderators = [];
 
 		for (let j = 0; j < 2; j++) {
-			moderators.push(users._id);
+			moderators.push(users[j]._id);
 		}
 
 		const name = sample(communities);
@@ -135,8 +135,11 @@ const seedPosts = async (users, groups) => {
 				comments,
 				user_id: sample(users),
 			});
-
-			const savedPost = post.save();
+			``;
+			const savedPost = await post.save();
+			const parentGroup = await Group.findById(group._id);
+			parentGroup.posts.push(savedPost._id);
+			await parentGroup.save();
 			posts.push(savedPost);
 		}
 		console.log("Seeding Post Complete.");
@@ -147,9 +150,12 @@ const seedPosts = async (users, groups) => {
 
 const seedDB = async () => {
 	try {
-		const { users } = await seedUserAndProfile();
-		const group = await seedGroup(users);
-		await seedPosts(users, group);
+		// const { users } = await seedUserAndProfile();
+		// const group = await seedGroup(users);
+		// await seedPosts(users, group);
+		await User.deleteMany();
+		await Group.deleteMany();
+		await Post.deleteMany();
 	} catch (err) {
 		console.log(err.message);
 	}

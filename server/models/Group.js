@@ -34,6 +34,10 @@ const groupSchema = new mongoose.Schema({
 			type: String,
 		},
 	],
+	admin: {
+		type: ObjectId,
+		ref: "User",
+	},
 	created_at: { type: Date, required: true, default: Date.now },
 });
 

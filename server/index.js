@@ -20,8 +20,10 @@ app.use(cors());
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/profile", require("./routes/profile"));
-app.use("/api/group", require("./routes/groups"));
-app.use("/api/group/:group_id/posts", require("./routes/posts"));
+app.use("/api/groups", require("./routes/groups"));
+
+app.use("/api/posts", require("./routes/posts"));
+app.use("/api/groups/:group_id/posts", require("./routes/groupPosts"));
 app.use("/api/comments", require("./routes/comments"));
 
 app.use((err, req, res, next) => {

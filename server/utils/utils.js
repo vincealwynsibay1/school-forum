@@ -38,6 +38,33 @@ module.exports.isAdmin = (req, res, next) => {
 	}
 };
 
+module.exports.paginatedResultsByArr = (arr, page = 1, limit = 3) => {
+	if (arr.length === 0) {
+		return [];
+	}
+	const startIndex = (page - 1) * limit;
+	const endIndex = page * limit;
+
+	const results = {};
+
+	if (endIndex < arr.length) {
+		results.next = {
+			page: page + 1,
+			limit: limit,
+		};
+	}
+
+	if (startIndex > arr.length) {
+		results.prev = {
+			page: page - 1,
+			limit: limit,
+		};
+	}
+
+	results.documents = arr.slice(startIndex, endIndex);
+	return results;
+};
+
 module.exports.paginatedResults = (model) => {
 	return async (req, res, next) => {
 		const page = parseInt(req.query.page);
@@ -45,7 +72,7 @@ module.exports.paginatedResults = (model) => {
 		const sort = req.query.sort;
 		const s = req.query.s;
 
-		const startIndex = (page - 0) * limit;
+		const startIndex = (page - 1) * limit;
 		const endIndex = page * limit;
 
 		const results = {};
@@ -63,6 +90,12 @@ module.exports.paginatedResults = (model) => {
 				limit: limit,
 			};
 		}
+
+		results.documents = await model
+			.find({})
+			.limit(limit)
+			.skip(startIndex)
+			.exec();
 
 		try {
 			if (sort) {
@@ -175,7 +208,6 @@ module.exports.paginatedResults = (model) => {
 				}
 			}
 
-			console.log(results);
 			res.paginatedResults = results;
 			next();
 		} catch (err) {

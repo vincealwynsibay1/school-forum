@@ -50,19 +50,19 @@ profileSchema.pre("remove", async (next) => {
 	const profile = this;
 
 	if (profile.groups && profile.groups.length > 0) {
-		profile.groups.forEach((groupId) => {
+		profile.groups.forEach((group) => {
 			profile
 				.model("Group")
 				.update(
-					{ _id: groupId },
-					{ $pull: { members: profile.user_id } }
+					{ _id: group._id },
+					{ $pullAll: { moderators: [profile.user_id] } }
 				);
 
 			profile
 				.model("Group")
 				.update(
-					{ _id: groupId },
-					{ $pull: { moderators: profile.user_id } }
+					{ _id: group },
+					{ $pullAll: { members: [profile.user_id] } }
 				);
 		});
 	}
@@ -90,9 +90,6 @@ profileSchema.pre("remove", async (next) => {
 				);
 		});
 	}
-
-	await Post.deleteMany({ user_id: profile.user_id });
-	await Comment.deleteMany({ user_id: profile.user_id });
 });
 
 module.exports = mongoose.model("Profile", profileSchema);

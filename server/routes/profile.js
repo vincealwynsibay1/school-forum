@@ -40,11 +40,6 @@ router.put("/:user_id/follow", isAuth, follow);
 // @access   Private
 router.put("/:user_id/unfollow", isAuth, unfollow);
 
-// @route    POST api/profile/
-// @desc     Create  profile
-// @access   Private
-router.post("/me", isAuth, create);
-
 // @route    PUT api/profile/:user_id/bio
 // @desc     Update profile bio
 // @access   Private

@@ -5,7 +5,6 @@ const Group = require("../models/Group");
 const asyncHandler = require("express-async-handler");
 
 exports.getCurrent = asyncHandler(async (req, res) => {
-	console.log(req.user);
 	const profile = await Profile.findOne({ user_id: req.user._id })
 		.populate("posts")
 		.populate("comments")
@@ -22,9 +21,12 @@ exports.getCurrent = asyncHandler(async (req, res) => {
 });
 
 exports.getProfileById = asyncHandler(async (req, res) => {
-	console.log(req.params.user_id);
-	const user = await User.findById(req.params.user_id);
-	const profile = await Profile.findOne({ user_id: req.params.user_id });
+	const profile = await Profile.findOne({ user_id: req.params.user_id })
+		.populate("posts")
+		.populate("comments")
+		.populate("groups")
+		.populate("following")
+		.populate("followers");
 	if (!profile) {
 		return res.status(400).json({ message: "Profile does not exist." });
 	}
@@ -36,28 +38,6 @@ exports.getAll = asyncHandler(async (req, res) => {
 	return res.json(res.paginatedResults);
 });
 
-exports.create = asyncHandler(async (req, res) => {
-	const { user_id, email, username } = req.user;
-	const avatarUrl = gravatar.url(email, {
-		s: "200",
-		r: "pg",
-		d: "identicon",
-	});
-
-	const profile = new Profile({
-		user_id,
-		avatar: { url: avatarUrl, fileName: "identicon" },
-		username,
-	});
-	const savedProfile = await profile.save(savedProfile);
-	if (!savedProfile) {
-		console.log("PROFILE CREATION ERROR");
-		return res.status(400).json({ error: "Profile Creation Failed." });
-	} else {
-		return res.json(savedProfile);
-	}
-});
-
 exports.updateBio = asyncHandler(async (req, res) => {
 	const profile = await Profile.findOne({ user_id: req.user._id });
 
@@ -65,11 +45,11 @@ exports.updateBio = asyncHandler(async (req, res) => {
 		return res.status(400).json({ error: "Profile does not exist" });
 	}
 
-	// if (profile.user_id !== req.user._id) {
-	// 	return res
-	// 		.status(401)
-	// 		.json({ error: "Cannot update someone else's profile'" });
-	// }
+	if (profile.user_id !== req.user._id) {
+		return res
+			.status(401)
+			.json({ error: "Cannot update someone else's profile'" });
+	}
 	profile.bio = req.body.bio;
 
 	const updatedProfile = await profile.save();
@@ -90,14 +70,13 @@ exports.updateAvatar = asyncHandler(async (req, res) => {
 			.json({ erorr: "Cannot update someone else's profile" });
 	}
 
-	const updatedProfile = await Profile.updateOne(
-		{ user_id: req.user._id },
-		{
-			$set: {
-				avatar: { url: req.file.path, fileName: req.file.fileName },
-			},
-		}
-	);
+	if (req.file) {
+		return res.status.json({ error: "Missing files." });
+	}
+
+	profile.avatar = { url: req.file.path, fileName: req.file.fileName };
+
+	const updatedProfile = await profile.save();
 	return res.json(updatedProfile);
 });
 
@@ -115,55 +94,56 @@ exports.deleteProfile = asyncHandler(async (req, res) => {
 	}
 
 	await Profile.deleteOne({ user_id: req.user._id });
-	Group.updateOne(
-		{ _id: req.params.user_id },
-		{ $pull: { user_id: user._id } }
-	);
 	return res.json({ message: "Successfully deleted the profile" });
 });
 
 exports.follow = asyncHandler(async (req, res) => {
 	const profile = await Profile.findOne({ user_id: req.params.user_id });
-	if (profile.followers && profile.followers.length > 0) {
-		if (
-			profile.followers.some((f) => f.toString() === req.user._id) &&
-			req.params.user_id !== req.user._id
-		) {
-			return res.status(400).json({ message: "User already followed" });
-		}
+	if (!profile) {
+		return res.status(400).json({ error: "User does not exist." });
 	}
-
-	console.log(profile);
+	if (
+		profile.followers.some((f) => f.toString() === req.user._id) &&
+		req.params.user_id !== req.user._id
+	) {
+		return res.status(400).json({ message: "User already followed" });
+	}
 
 	await Profile.findByIdAndUpdate(req.user._id, {
 		$push: { following: req.params.user_id },
 	});
+	const currentProfile = await Profile.findOne({ user_id: req.user._id });
+	currentProfile.following.unshift(profile.user_id);
 
 	profile.followers.unshift(req.user._id);
 
+	await currentProfile.save();
 	const savedProfile = await profile.save();
 	return res.json(savedProfile);
 });
 
 exports.unfollow = asyncHandler(async (req, res) => {
-	const profile = await Profile.findOne({ user_id: req.user._id });
-
-	if (profile.followers && profile.followers.length > 0) {
-		if (!profile.followers.some((f) => f.toString() === req.user._id)) {
-			return res
-				.status(400)
-				.json({ message: "User has not yet been followed" });
-		}
+	const profile = await Profile.findOne({ user_id: req.params.user_id });
+	if (!profile) {
+		return res.status(400).json({ error: "User does not exist." });
+	}
+	if (!profile.followers.some((f) => f.toString() === req.user._id)) {
+		return res
+			.status(400)
+			.json({ message: "User has not yet been followed" });
 	}
 
-	await Profile.findByIdAndUpdate(req.user._id, {
-		$pull: { following: req.params.user_id },
-	});
+	const userProfile = await Profile.findOne({ user_id: req.user._id });
+	// remove the user in the current user's following
+	userProfile.following = userProfile.following.filter(
+		(f) => f.toString() !== profile.user_id.toString()
+	);
 
+	// remove the current user in the user's follower
 	profile.followers = profile.followers.filter(
 		(f) => f.toString() !== req.user._id
 	);
-
+	await userProfile.save();
 	const savedProfile = await profile.save();
 	return res.json(savedProfile);
 });

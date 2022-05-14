@@ -1,41 +1,72 @@
 const User = require("../models/User");
-const jwt = require("jsonwebtoken");
+const Profile = require("../models/Profile");
 const { generateToken } = require("../utils/utils");
+const asyncHandler = require("express-async-handler");
+const gravatar = require("gravatar");
 
-exports.signup = (req, res) => {
-	const { username, email, password } = req.body;
-	const user = new User({ username, email, passwordHash: password });
-	user.save((err, user) => {
-		if (err) {
-			return res.status(400).json({ error: err.message });
-		}
-		const { _id, email, username, role } = user;
-		return res.json({ user: { _id, email, username, role } });
-	});
-};
-
-exports.signin = (req, res) => {
+exports.signin = asyncHandler(async (req, res) => {
 	const { email, password } = req.body;
-	console.log(email);
-	User.findOne({ email }, (err, user) => {
-		if (err || !user) {
-			return res.status(400).json({
-				error: "User with that email does not exist. Please register.",
-			});
-		}
 
-		if (!user.authenticate(password)) {
-			return res
-				.status(401)
-				.json({ error: "Email or Password does not match" });
-		}
+	const user = await User.findOne({ email });
+	if (!user) {
+		return res.status(400).json({
+			error: "User with that email does not exist. Please register.",
+		});
+	}
 
-		// generate token
-		const { _id, email, username, role } = user;
-		const token = generateToken({ _id, email, username, role });
-		// return response to client
-		return res.json({ token, user: { _id, email, username, role } });
+	if (!user.authenticate(password)) {
+		return res
+			.status(401)
+			.json({ error: "Email or Password does not match" });
+	}
+
+	// generate token
+	const token = generateToken({
+		_id: user._id,
+		email,
+		username: user.username,
+		role: user.role,
 	});
-};
 
-exports.signout = (req, res) => {};
+	// return response to client
+	return res.json({
+		token,
+		user: {
+			email: user.email,
+			role: user.role,
+			username: user.username,
+			_id: user._id,
+		},
+	});
+});
+
+exports.signup = asyncHandler(async (req, res) => {
+	const { username, email, password } = req.body;
+
+	const userByEmail = await User.findOne({ email });
+	const userByUsername = await User.findOne({ username });
+	if (userByEmail) {
+		return res.status(400).json({ error: "Email already taken." });
+	} else if (userByUsername) {
+		return res.status(400).json({ error: "Username already taken." });
+	}
+
+	const newUser = new User({ username, email, passwordHash: password });
+
+	const savedUser = await newUser.save();
+
+	const avatarUrl = gravatar.url(email, {
+		s: "200",
+		r: "pg",
+		d: "identicon",
+	});
+
+	const profile = new Profile({
+		user_id: savedUser._id,
+		avatar: { url: avatarUrl, fileName: "identicon" },
+		username,
+	});
+
+	await profile.save();
+	return res.json({ _id: savedUser._id, email, username });
+});

@@ -15,6 +15,7 @@ const { createGroupValidator } = require("../validators/group");
 
 const multer = require("multer");
 const { storage } = require("../config/cloudinary");
+const { runValidation } = require("../validators");
 const upload = multer({ storage });
 const router = require("express").Router();
 
@@ -31,7 +32,7 @@ router.get("/:group_id", getById);
 // @route POST api/groups/:group_id
 // @desc  Create group
 // @access Private
-router.post("/:group_id", isAuth, createGroupValidator, create);
+router.post("/", isAuth, create);
 
 // @route PUT api/groups/:group_id
 // @desc  Update group's name, description, and/or rules
