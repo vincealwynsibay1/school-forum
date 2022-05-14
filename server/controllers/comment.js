@@ -1,6 +1,7 @@
 const Comment = require("../models/Comment");
-const Post = require("../models/Post");
+
 const asyncHandler = require("express-async-handler");
+const Profile = require("../models/Profile");
 
 exports.createReply = asyncHandler(async (req, res) => {
 	const { content } = req.body;
@@ -12,6 +13,10 @@ exports.createReply = asyncHandler(async (req, res) => {
 	});
 	comment.replies.unshift(reply);
 	const savedReply = await reply.save();
+	await Profile.updateOne(
+		{ user_id: req.user._id },
+		{ $push: { comments: savedReply._id } }
+	);
 	return res.json(savedReply);
 });
 
@@ -33,5 +38,9 @@ exports.deleteReply = asyncHandler(async (req, res) => {
 		(reply) => reply.id !== req.params.reply_id
 	);
 	await comment.save();
+	await Profile.updateOne(
+		{ user_id: req.user._id },
+		{ $pull: { comments: reply._id } }
+	);
 	return res.json(comment.replies);
 });
