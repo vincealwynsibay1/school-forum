@@ -41,6 +41,6 @@ exports.deleteReply = asyncHandler(async (req, res) => {
 	await Profile.updateOne(
 		{ user_id: req.user._id },
 		{ $pull: { comments: reply._id } }
-	);
+	);	
 	return res.json(comment.replies);
 });

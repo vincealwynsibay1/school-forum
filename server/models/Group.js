@@ -23,12 +23,6 @@ const groupSchema = new mongoose.Schema({
 			ref: "User",
 		},
 	],
-	posts: [
-		{
-			type: ObjectId,
-			ref: "Post",
-		},
-	],
 	rules: [
 		{
 			type: String,
@@ -39,16 +33,6 @@ const groupSchema = new mongoose.Schema({
 		ref: "User",
 	},
 	created_at: { type: Date, required: true, default: Date.now },
-});
-
-groupSchema.pre("remove", async (next) => {
-	const group = this;
-
-	group
-		.model("Profile")
-		.update({ groups: group._id }, { $pull: { groups: group._id } });
-
-	await Post.deleteMany({ group: group._id });
 });
 
 module.exports = mongoose.model("Group", groupSchema);

@@ -25,7 +25,7 @@ const seedUserAndProfile = async () => {
 	const admin = new User({
 		username: "admin",
 		email: "admin@admin.com",
-		passwordHash: "admin",
+		password: "admin",
 		role: "admin",
 	});
 	const savedAdmin = await admin.save();
@@ -37,7 +37,7 @@ const seedUserAndProfile = async () => {
 		const user = new User({
 			username: `user_${i}`,
 			email: `user_${i}@email.com`,
-			passwordHash: `user_${i}_password`,
+			password: `user_${i}_password`,
 		});
 		const savedUser = await user.save();
 		users.push(savedUser);
@@ -50,7 +50,7 @@ const seedUserAndProfile = async () => {
 		});
 
 		const profile = new Profile({
-			user_id: savedUser._id,
+			user: savedUser._id,
 			avatar: { url: avatarUrl, fileName: "identicon" },
 			username: savedUser.username,
 		});
@@ -62,100 +62,102 @@ const seedUserAndProfile = async () => {
 	return { users, profiles };
 };
 
-const seedGroup = async (users) => {
-	console.log("Seeding Group...");
-	await Group.deleteMany({});
-	const groups = [];
+// const seedGroup = async (users) => {
+// 	console.log("Seeding Group...");
+// 	await Group.deleteMany({});
+// 	const groups = [];
 
-	for (let i = 0; i < 3; i++) {
-		const moderators = [];
+// 	for (let i = 0; i < 3; i++) {
+// 		const moderators = [];
 
-		for (let j = 0; j < 2; j++) {
-			moderators.push(users[j]._id);
-		}
+// 		for (let j = 0; j < 2; j++) {
+// 			moderators.push(users[j]._id);
+// 		}
 
-		const name = sample(communities);
+// 		const name = sample(communities);
 
-		const photoUrl = gravatar.url(`${name}@group`, {
-			s: "200",
-			r: "pg",
-			d: "retro",
-		});
+// 		const photoUrl = gravatar.url(`${name}@group`, {
+// 			s: "200",
+// 			r: "pg",
+// 			d: "retro",
+// 		});
 
-		const group = new Group({
-			name,
-			moderators,
-			groupPhoto: { url: photoUrl, fileName: "retro" },
-		});
+// 		const group = new Group({
+// 			name,
+// 			moderators,
+// 			groupPhoto: { url: photoUrl, fileName: "retro" },
+// 		});
 
-		const savedGroup = await group.save();
-		groups.push(savedGroup);
-	}
-	console.log("Seeding Group Complete.");
-	return groups;
-};
-const seedPosts = async (users, groups) => {
-	console.log("Seeding Post...");
-	await Post.deleteMany({});
-	const posts = [];
+// 		const savedGroup = await group.save();
+// 		groups.push(savedGroup);
+// 	}
+// 	console.log("Seeding Group Complete.");
+// 	return groups;
+// };
+// const seedPosts = async (users, groups) => {
+// 	console.log("Seeding Post...");
+// 	await Post.deleteMany({});
+// 	const posts = [];
 
-	for (let group of groups) {
-		for (let i = 0; i < 10; i++) {
-			const comments = [];
+// 	for (let group of groups) {
+// 		for (let i = 0; i < 10; i++) {
+// 			const comments = [];
 
-			for (let j = 0; j < 5; j++) {
-				const replies = [];
-				for (let k = 0; k < 2; k++) {
-					const reply = new Comment({
-						user_id: sample(users),
+// 			for (let j = 0; j < 5; j++) {
+// 				const replies = [];
+// 				for (let k = 0; k < 2; k++) {
+// 					const reply = new Comment({
+// 						user_id: sample(users),
 
-						content:
-							"Lorem ipsum dolor sit amet. Vel blanditiis suscipit non internos eveniet et provident dolorem. Et labore inventore vel quia tempora a autem consequatur aut eligendi dolor?",
-					});
-					const savedReply = await reply.save();
-					replies.push(savedReply);
-				}
+// 						content:
+// 							"Lorem ipsum dolor sit amet. Vel blanditiis suscipit non internos eveniet et provident dolorem. Et labore inventore vel quia tempora a autem consequatur aut eligendi dolor?",
+// 					});
+// 					const savedReply = await reply.save();
+// 					replies.push(savedReply);
+// 				}
 
-				const comment = new Comment({
-					user_id: sample(users),
-					content:
-						"Lorem ipsum dolor sit amet. Vel blanditiis suscipit non internos eveniet et provident dolorem. Et labore inventore vel quia tempora a autem consequatur aut eligendi dolor?",
-					replies,
-				});
+// 				const comment = new Comment({
+// 					user_id: sample(users),
+// 					content:
+// 						"Lorem ipsum dolor sit amet. Vel blanditiis suscipit non internos eveniet et provident dolorem. Et labore inventore vel quia tempora a autem consequatur aut eligendi dolor?",
+// 					replies,
+// 				});
 
-				const savedComment = await comment.save();
-				comments.push(savedComment);
-			}
+// 				const savedComment = await comment.save();
+// 				comments.push(savedComment);
+// 			}
 
-			const post = new Post({
-				title: `${sample(descriptors)} ${sample(topics)}`,
-				content:
-					"Lorem ipsum dolor sit amet. Vel blanditiis suscipit non internos eveniet et provident dolorem. Et labore inventore vel quia tempora a autem consequatur aut eligendi dolor?",
-				group: group._id,
-				comments,
-				user_id: sample(users),
-			});
-			``;
-			const savedPost = await post.save();
-			const parentGroup = await Group.findById(group._id);
-			parentGroup.posts.push(savedPost._id);
-			await parentGroup.save();
-			posts.push(savedPost);
-		}
-		console.log("Seeding Post Complete.");
+// 			const post = new Post({
+// 				title: `${sample(descriptors)} ${sample(topics)}`,
+// 				content:
+// 					"Lorem ipsum dolor sit amet. Vel blanditiis suscipit non internos eveniet et provident dolorem. Et labore inventore vel quia tempora a autem consequatur aut eligendi dolor?",
+// 				group: group._id,
+// 				comments,
+// 				user_id: sample(users),
+// 			});
+// 			``;
+// 			const savedPost = await post.save();
+// 			const parentGroup = await Group.findById(group._id);
+// 			parentGroup.posts.push(savedPost._id);
+// 			await parentGroup.save();
+// 			posts.push(savedPost);
+// 		}
+// 		console.log("Seeding Post Complete.");
 
-		return posts;
-	}
-};
+// 		return posts;
+// 	}
+// };
 
 const seedDB = async () => {
 	try {
-		// const { users } = await seedUserAndProfile();
+		const { users } = await seedUserAndProfile();
 		// const group = await seedGroup(users);
 		// await seedPosts(users, group);
-		await User.deleteMany();
+		// await User.deleteMany();
+		// await Profile.deleteMany();
 		await Group.deleteMany();
 		await Post.deleteMany();
+		await Comment.deleteMany();
 	} catch (err) {
 		console.log(err.message);
 	}

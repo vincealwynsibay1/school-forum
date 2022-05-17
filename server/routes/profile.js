@@ -9,11 +9,9 @@ const {
 	unfollow,
 	updateAvatar,
 	updateBio,
+	update,
 } = require("../controllers/profile");
-const multer = require("multer");
-const { storage } = require("../config/cloudinary");
 const Profile = require("../models/Profile.js");
-const upload = multer({ storage });
 
 // @route    GET api/profile
 // @desc     Get all users profile
@@ -40,14 +38,9 @@ router.put("/:user_id/follow", isAuth, follow);
 // @access   Private
 router.put("/:user_id/unfollow", isAuth, unfollow);
 
-// @route    PUT api/profile/:user_id/bio
-// @desc     Update profile bio
+// @route    PUT api/profile/:user_id
+// @desc     Update profile
 // @access   Private
-router.put("/:user_id/bio", isAuth, updateBio);
-
-// @route    PUT api/profile/:user_id/avatar
-// @desc     Update profile avatar
-// @access   Private
-router.put("/:user_id/avatar", isAuth, upload.single("avatar"), updateAvatar);
+router.put("/:user_id", isAuth, update);
 
 module.exports = router;

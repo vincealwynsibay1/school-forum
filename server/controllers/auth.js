@@ -43,17 +43,10 @@ exports.signin = asyncHandler(async (req, res) => {
 exports.signup = asyncHandler(async (req, res) => {
 	const { username, email, password } = req.body;
 
-	const userByEmail = await User.findOne({ email });
-	const userByUsername = await User.findOne({ username });
-	if (userByEmail) {
+	const user = await User.findOne({ email });
+	if (user) {
 		return res.status(400).json({ error: "Email already taken." });
-	} else if (userByUsername) {
-		return res.status(400).json({ error: "Username already taken." });
 	}
-
-	const newUser = new User({ username, email, passwordHash: password });
-
-	const savedUser = await newUser.save();
 
 	const avatarUrl = gravatar.url(email, {
 		s: "200",
@@ -61,10 +54,17 @@ exports.signup = asyncHandler(async (req, res) => {
 		d: "identicon",
 	});
 
-	const profile = new Profile({
-		user_id: savedUser._id,
-		avatar: { url: avatarUrl, fileName: "identicon" },
+	const newUser = new User({
 		username,
+		email,
+		password,
+		avatar: { url: avatarUrl, fileName: `${username}.identicon` },
+	});
+
+	const savedUser = await newUser.save();
+
+	const profile = new Profile({
+		user: savedUser._id,
 	});
 
 	await profile.save();

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const ImageSchema = require("./ImageSchema");
 const userSchema = new mongoose.Schema(
 	{
 		username: {
@@ -12,14 +13,16 @@ const userSchema = new mongoose.Schema(
 			trim: true,
 			required: true,
 		},
-		passwordHash: {
+		password: {
 			type: String,
 			required: true,
 		},
+		avatar: ImageSchema,
 		role: {
 			type: String,
 			default: "user",
 		},
+		date: { type: Date, default: Date.now },
 	},
 	{ timestamps: true }
 );
@@ -27,17 +30,17 @@ const userSchema = new mongoose.Schema(
 userSchema.methods = {
 	//compare the input password to the hashed password in the server
 	authenticate: async function (enteredPassword) {
-		return await bcrypt.compare(enteredPassword, this.passwordHash);
+		return await bcrypt.compare(enteredPassword, this.password);
 	},
 };
 
 userSchema.pre("save", async function (next) {
-	if (!this.isModified("passwordHash")) {
+	if (!this.isModified("password")) {
 		next();
 	}
 
 	const salt = await bcrypt.genSalt(10);
-	this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
+	this.password = await bcrypt.hash(this.password, salt);
 });
 
 module.exports = mongoose.model("User", userSchema);

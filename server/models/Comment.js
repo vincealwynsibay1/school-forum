@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema;
 
 const commentSchema = new mongoose.Schema({
-	user_id: {
+	author: {
 		type: ObjectId,
 	},
 	content: {
@@ -44,21 +44,7 @@ const commentSchema = new mongoose.Schema({
 			],
 		},
 	],
-	created_at: { type: Date, required: true, default: Date.now },
-});
-
-commentSchema.pre("remove", async (next) => {
-	const comment = this;
-
-	// remove the comment on the profile's comment array
-	comment
-		.model("Profile")
-		.update({ comments: comment._id }, { $pull: { comments: comment_id } });
-
-	// remove the comment on the post
-	comment
-		.model("Post")
-		.update({ comments: comment._id }, { $pull: { comments: comment_id } });
+	date: { type: Date, required: true, default: Date.now },
 });
 
 module.exports = mongoose.model("Comment", commentSchema);
