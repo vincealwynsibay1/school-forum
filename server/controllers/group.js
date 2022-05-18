@@ -11,7 +11,6 @@ exports.getAll = asyncHandler(async (req, res) => {
 exports.getById = asyncHandler(async (req, res) => {
 	const group = await Group.findById(req.params.group_id)
 		.populate("members")
-		.populate("posts")
 		.populate("moderators");
 
 	let page = 1;
@@ -24,14 +23,16 @@ exports.getById = asyncHandler(async (req, res) => {
 		limit = parseInt(req.query.limit);
 	}
 
-	const paginatedPosts = paginatedResultsByArr(group.posts, page, limit);
+	const posts = await Post.find({ group: group._id });
+
+	const paginatedPosts = paginatedResultsByArr(posts, page, limit);
 	return res.json({
 		posts: paginatedPosts,
 		members: group.members,
 		moderators: group.moderators,
 		rules: group.rules,
 		description: group.description,
-		created_at: group.created_at,
+		date: group.date,
 		groupPhoto: group.groupPhoto,
 		name: group.name,
 	});
@@ -40,9 +41,31 @@ exports.getById = asyncHandler(async (req, res) => {
 exports.getByName = asyncHandler(async (req, res) => {
 	const group = await Group.findOne({ name: req.body.name })
 		.populate("members")
-		.populate("moderators")
-		.populate("posts");
-	return res.json(group);
+		.populate("moderators");
+
+	let page = 1;
+	let limit = 2;
+
+	if (req.query.page) {
+		page = parseInt(req.query.page);
+	}
+	if (req.query.limit) {
+		limit = parseInt(req.query.limit);
+	}
+
+	const posts = await Post.find({ group: group._id });
+
+	const paginatedPosts = paginatedResultsByArr(posts, page, limit);
+	return res.json({
+		posts: paginatedPosts,
+		members: group.members,
+		moderators: group.moderators,
+		rules: group.rules,
+		description: group.description,
+		date: group.date,
+		groupPhoto: group.groupPhoto,
+		name: group.name,
+	});
 });
 
 exports.create = asyncHandler(async (req, res) => {
@@ -57,22 +80,18 @@ exports.create = asyncHandler(async (req, res) => {
 		title: "Congratulations!",
 		content: "Welcome to your newly create community",
 		user_id: req.user._id,
+		group: group._id,
 	});
-	const savedPost = await post.save();
+
+	await post.save();
+
 	const group = new Group({
 		name,
 		members: [req.user._id],
 		moderators: [req.user._id],
 		groupPhoto: { url: photoUrl, fileName: "retro" },
 		admin: req.user._id,
-		posts: [savedPost._id],
 	});
-
-	const profile = await Profile.findOne({ user_id: req.user._id });
-
-	profile.groups.unshift(group._id);
-
-	await profile.save();
 
 	const savedGroup = await group.save();
 	return res.json(savedGroup);
@@ -147,40 +166,20 @@ exports.join = asyncHandler(async (req, res) => {
 		return res.status(400).json({ message: "User already a member" });
 	}
 	group.members.unshift(req.user._id);
-	const profile = await Profile.findOne({ user_id: req.user._id });
-	if (!profile) {
-		return res
-			.status(404)
-			.json({ error: "Profile does not exist. Please Login" });
-	}
-	profile.groups.unshift(group);
-	await profile.save();
 	const updatedGroup = await group.save();
 	return res.json(updatedGroup);
 });
 
 exports.leave = asyncHandler(async (req, res) => {
 	const group = await Group.findById(req.params.group_id);
-	console.log(group);
 	if (!group.members.some((member) => member.toString() === req.user._id)) {
 		return res.status(400).json({ message: "User is not a member" });
 	}
 
-	const profile = await Profile.findOne({ user_id: req.user._id });
-	if (!profile) {
-		return res
-			.status(404)
-			.json({ error: "Profile does not exist. Please Login" });
-	}
 	group.members = group.members.filter(
 		(member) => member.toString() !== req.user._id
 	);
 
-	profile.groups = profile.groups.filter(
-		(g) => g.toString() !== group._id.toString()
-	);
-
-	await profile.save();
 	const updatedGroup = await group.save();
 	return res.json(updatedGroup);
 });

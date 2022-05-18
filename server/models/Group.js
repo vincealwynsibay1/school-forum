@@ -32,7 +32,7 @@ const groupSchema = new mongoose.Schema({
 		type: ObjectId,
 		ref: "User",
 	},
-	created_at: { type: Date, required: true, default: Date.now },
+	date: { type: Date, required: true, default: Date.now },
 });
 
 module.exports = mongoose.model("Group", groupSchema);

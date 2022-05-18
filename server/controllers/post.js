@@ -10,11 +10,16 @@ exports.getAll = asyncHandler(async (req, res) => {
 });
 
 exports.getAllPostInGroup = asyncHandler(async (req, res) => {
-	const group = await Group.findById(req.params.group_id).populate("posts");
+	// fetches group
+	const group = await Group.findOne({ _id: req.params.group_id });
 
+	// checks if the group exists
 	if (!group) {
-		return res.status(400).json({ error: "Group does not exist" });
+		return res.status(400).json("Group not found");
 	}
+
+	// fetches all posts in group
+	const posts = await Post.find({ group: req.params.group_id });
 
 	let page = 1;
 	let limit = 2;
@@ -26,13 +31,13 @@ exports.getAllPostInGroup = asyncHandler(async (req, res) => {
 		limit = parseInt(req.query.limit);
 	}
 
-	const paginatedResults = paginatedResultsByArr(group.posts, page, limit);
+	const paginatedResults = paginatedResultsByArr(posts, page, limit);
 	return res.json(paginatedResults);
 });
 
 exports.getById = asyncHandler(async (req, res) => {
 	const post = await Post.findById(req.params.post_id)
-		.populate("user_id", ["_id", "username"])
+		.populate("author", ["_id", "username"])
 		.populate("upvotes", ["_id", "username"])
 		.populate("downvotes", ["_id", "username"])
 		.populate("group", ["_id", "name"]);
@@ -57,6 +62,7 @@ exports.create = asyncHandler(async (req, res) => {
 		user_id: req.user._id,
 		group: group._id,
 	});
+
 	if (req.files) {
 		post.images = req.files.map((f) => ({
 			url: f.url,
@@ -64,14 +70,6 @@ exports.create = asyncHandler(async (req, res) => {
 		}));
 	}
 	const savedPost = await post.save();
-	await Profile.updateOne(
-		{ user_id: req.user._id },
-		{ $push: { posts: savedPost._id } }
-	);
-	await Group.updateOne(
-		{ _id: req.params.group_id },
-		{ $push: { posts: savedPost._id } }
-	);
 	return res.json(savedPost);
 });
 
@@ -110,16 +108,7 @@ exports.deletePost = asyncHandler(async (req, res) => {
 	}
 
 	await Post.deleteOne({ id: req.params.post_id });
-	await Group.updateOne(
-		{ _id: req.params.group_id },
-		{ $pull: { posts: post._id } }
-	);
-	await Profile.updateOne(
-		{
-			user_id: post.user_id,
-		},
-		{ $pull: { posts: post._id } }
-	);
+
 	return res.json({ message: "Post successfully deleted." });
 });
 
@@ -133,6 +122,7 @@ exports.upvote = asyncHandler(async (req, res) => {
 	if (post.upvotes.some((upvote) => upvote.toString() === req.user._id)) {
 		return res.status(400).json({ message: "Post already upvoted" });
 	}
+
 	post.upvotes.unshift(req.user._id);
 	const savedPost = await post.save();
 	return res.json(savedPost);
@@ -183,11 +173,7 @@ exports.createComment = asyncHandler(async (req, res) => {
 	});
 	const savedComment = await comment.save();
 	post.comments.unshift(savedComment._id);
-
-	await Profile.updateOne(
-		{ user_id: req.user._id },
-		{ $push: { comments: savedComment._id } }
-	);
+	await post.save();
 	return res.json(savedComment);
 });
 
@@ -209,12 +195,6 @@ exports.deleteComment = asyncHandler(async (req, res) => {
 	post.comments = post.comments.filter(
 		(comment) => comment !== req.params.comment_id
 	);
-
-	await Profile.updateOne(
-		{ user_id: comment.user_id },
-		{ $pull: { comments: comment._id } }
-	);
-
 	await post.save();
 	return res.json(post.comments);
 });

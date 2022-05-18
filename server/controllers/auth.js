@@ -8,12 +8,15 @@ exports.signin = asyncHandler(async (req, res) => {
 	const { email, password } = req.body;
 
 	const user = await User.findOne({ email });
+
+	// checks if user exists
 	if (!user) {
 		return res.status(400).json({
 			error: "User with that email does not exist. Please register.",
 		});
 	}
 
+	// checks if the inputted password matches to the user's password on database
 	if (!user.authenticate(password)) {
 		return res
 			.status(401)
@@ -44,16 +47,20 @@ exports.signup = asyncHandler(async (req, res) => {
 	const { username, email, password } = req.body;
 
 	const user = await User.findOne({ email });
+
+	// checks if a user with that email already exists
 	if (user) {
 		return res.status(400).json({ error: "Email already taken." });
 	}
 
+	// create default avatar
 	const avatarUrl = gravatar.url(email, {
 		s: "200",
 		r: "pg",
 		d: "identicon",
 	});
 
+	// creates new user with default avatar
 	const newUser = new User({
 		username,
 		email,
@@ -61,8 +68,10 @@ exports.signup = asyncHandler(async (req, res) => {
 		avatar: { url: avatarUrl, fileName: `${username}.identicon` },
 	});
 
+	// save user
 	const savedUser = await newUser.save();
 
+	// after saving the new user, a profile will be created
 	const profile = new Profile({
 		user: savedUser._id,
 	});
