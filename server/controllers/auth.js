@@ -4,9 +4,13 @@ const { generateToken } = require("../utils/utils");
 const asyncHandler = require("express-async-handler");
 const gravatar = require("gravatar");
 
-exports.signin = asyncHandler(async (req, res) => {
-	const { email, password } = req.body;
+exports.getUserByToken = asyncHandler(async (req, res) => {
+	const user = await User.findById(req.user.id).select("-password");
+	return res.json(user);
+});
 
+exports.login = asyncHandler(async (req, res) => {
+	const { email, password } = req.body;
 	const user = await User.findOne({ email });
 
 	// checks if user exists
@@ -34,17 +38,12 @@ exports.signin = asyncHandler(async (req, res) => {
 	// return response to client
 	return res.json({
 		token,
-		user: {
-			email: user.email,
-			role: user.role,
-			username: user.username,
-			_id: user._id,
-		},
 	});
 });
 
-exports.signup = asyncHandler(async (req, res) => {
+exports.register = asyncHandler(async (req, res) => {
 	const { username, email, password } = req.body;
+	console.log(username, email, password);
 
 	const user = await User.findOne({ email });
 
@@ -71,11 +70,18 @@ exports.signup = asyncHandler(async (req, res) => {
 	// save user
 	const savedUser = await newUser.save();
 
+	// generate token
+	const token = generateToken({
+		_id: savedUser._id,
+		email,
+		username,
+	});
+
 	// after saving the new user, a profile will be created
 	const profile = new Profile({
 		user: savedUser._id,
 	});
 
 	await profile.save();
-	return res.json({ _id: savedUser._id, email, username });
+	return res.json({ token });
 });

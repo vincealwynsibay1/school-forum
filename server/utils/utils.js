@@ -6,16 +6,15 @@ module.exports.generateToken = (user) => {
 };
 
 module.exports.isAuth = (req, res, next) => {
-	const bearerToken = req.header("token");
+	const token = req.header("token");
 
-	if (!bearerToken) {
+	if (!token) {
 		return res
 			.status(401)
 			.json({ message: "No token, authorization not allowed" });
 	}
 
 	try {
-		const token = bearerToken.slice(7, bearerToken.length);
 		jwt.verify(token, process.env.JWT_SECRET, (err, data) => {
 			if (err) {
 				res.status(401).json({ message: "Invalid Token" });
