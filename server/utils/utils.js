@@ -7,7 +7,7 @@ module.exports.generateToken = (user) => {
 
 module.exports.isAuth = (req, res, next) => {
 	const token = req.header("token");
-
+	console.log(token);
 	if (!token) {
 		return res
 			.status(401)

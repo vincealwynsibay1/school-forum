@@ -5,7 +5,7 @@ const asyncHandler = require("express-async-handler");
 const gravatar = require("gravatar");
 
 exports.getUserByToken = asyncHandler(async (req, res) => {
-	const user = await User.findById(req.user.id).select("-password");
+	const user = await User.findById(req.user._id).select("-password");
 	return res.json(user);
 });
 

@@ -66,5 +66,51 @@ export const getProfileById = (userId) => async (dispatch) => {
 };
 
 // Follow User
+export const follow = (userId) => async (dispatch) => {
+	try {
+		const res = await api.put(`/profile/${userId}/follow`);
+
+		dispatch({ type: UPDATE_PROFILE, payload: res.data });
+	} catch (err) {
+		dispatch({
+			type: PROFILE_ERROR,
+			payload: {
+				msg: err.response.statusText,
+				status: err.response.status,
+			},
+		});
+	}
+};
 // Unfollow
+export const unfollow = (userId) => async (dispatch) => {
+	try {
+		const res = await api.put(`/profile/${userId}/unfollow`);
+
+		dispatch({ type: UPDATE_PROFILE, payload: res.data });
+	} catch (err) {
+		dispatch({
+			type: PROFILE_ERROR,
+			payload: {
+				msg: err.response.statusText,
+				status: err.response.status,
+			},
+		});
+	}
+};
+
 // Update
+export const updateProfile = (userId, formData) => async (dispatch) => {
+	try {
+		const res = await api.put(`/profile/${userId}`, formData);
+
+		dispatch({ type: UPDATE_PROFILE, payload: res.data });
+	} catch (err) {
+		dispatch({
+			type: PROFILE_ERROR,
+			payload: {
+				msg: err.response.statusText,
+				status: err.response.status,
+			},
+		});
+	}
+};
