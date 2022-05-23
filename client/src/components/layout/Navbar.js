@@ -1,23 +1,32 @@
 import React, { Fragment } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { logout } from "../../actions/auth";
 
-const Navbar = ({ auth: { isAuthenticated }, logout }) => {
+const Navbar = ({ auth: { isAuthenticated, user }, logout }) => {
 	const authLinks = (
 		<ul>
 			<li>
-				<Link to='/profiles'>Developers</Link>
+				<Link to='/profiles'>Profiles</Link>
+			</li>
+			<li>
+				<Link to='/groups'>Groups</Link>
 			</li>
 			<li>
 				<Link to='/posts'>Posts</Link>
 			</li>
 			<li>
 				<Link to='/dashboard'>
-					<i className='fas fa-user' />{" "}
 					<span className='hide-sm'>Dashboard</span>
 				</Link>
+			</li>
+			<li>
+				{user && (
+					<Link to={`/profile/${user._id}`}>
+						Signed In as: {user && user.username}
+					</Link>
+				)}
 			</li>
 			<li>
 				<a onClick={logout} href='#!'>
@@ -45,9 +54,7 @@ const Navbar = ({ auth: { isAuthenticated }, logout }) => {
 	return (
 		<nav className='navbar bg-dark'>
 			<h1>
-				<Link to='/'>
-					<i className='fas fa-code' /> SchoolForum
-				</Link>
+				<Link to='/'>SchoolForum</Link>
 			</h1>
 			<Fragment>{isAuthenticated ? authLinks : guestLinks}</Fragment>
 		</nav>

@@ -34,25 +34,25 @@ const seedUserAndProfile = async () => {
 	// Create Profile for Admin
 
 	for (let i = 0; i < 10; i++) {
-		const user = new User({
-			username: `user_${i}`,
-			email: `user_${i}@email.com`,
-			password: `user_${i}_password`,
-		});
-		const savedUser = await user.save();
-		users.push(savedUser);
-
-		// create profiles for each user
-		const avatarUrl = gravatar.url(user.email, {
+		const email = `user_${i}@email.com`;
+		const avatarUrl = gravatar.url(email, {
 			s: "200",
 			r: "pg",
 			d: "identicon",
 		});
 
+		const user = new User({
+			username: `user_${i}`,
+			email,
+			avatar: { url: avatarUrl, fileName: "identicon" },
+
+			password: `user_${i}_password`,
+		});
+		const savedUser = await user.save();
+		users.push(savedUser);
+
 		const profile = new Profile({
 			user: savedUser._id,
-			avatar: { url: avatarUrl, fileName: "identicon" },
-			username: savedUser.username,
 		});
 		const savedProfile = await profile.save();
 		profiles.push(savedProfile);

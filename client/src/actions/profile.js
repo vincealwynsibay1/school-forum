@@ -66,10 +66,10 @@ export const getProfileById = (userId) => async (dispatch) => {
 };
 
 // Follow User
-export const follow = (userId) => async (dispatch) => {
+export const followProfile = (userId) => async (dispatch) => {
 	try {
 		const res = await api.put(`/profile/${userId}/follow`);
-
+		console.log(res.data);
 		dispatch({ type: UPDATE_PROFILE, payload: res.data });
 	} catch (err) {
 		dispatch({
@@ -82,7 +82,7 @@ export const follow = (userId) => async (dispatch) => {
 	}
 };
 // Unfollow
-export const unfollow = (userId) => async (dispatch) => {
+export const unfollowProfile = (userId) => async (dispatch) => {
 	try {
 		const res = await api.put(`/profile/${userId}/unfollow`);
 
@@ -102,7 +102,7 @@ export const unfollow = (userId) => async (dispatch) => {
 export const updateProfile = (userId, formData) => async (dispatch) => {
 	try {
 		const res = await api.put(`/profile/${userId}`, formData);
-
+		console.log(res);
 		dispatch({ type: UPDATE_PROFILE, payload: res.data });
 	} catch (err) {
 		dispatch({

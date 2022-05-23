@@ -13,9 +13,9 @@ const Register = ({ register, isAuthenticated }) => {
 		password2: "",
 	});
 	const { email, username, password, password2 } = formData;
-
+	console.log(isAuthenticated);
 	if (isAuthenticated) {
-		<Navigate to='/' />;
+		return <Navigate to='/' />;
 	}
 
 	const onChange = (e) => [

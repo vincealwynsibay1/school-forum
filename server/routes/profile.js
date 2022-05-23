@@ -16,7 +16,7 @@ const Profile = require("../models/Profile.js");
 // @route    GET api/profile
 // @desc     Get all users profile
 // @access   Public
-router.get("/", paginatedResults(Profile), getAll);
+router.get("/", getAll);
 
 // @route    GET api/profile/me
 // @desc     Get current users profile

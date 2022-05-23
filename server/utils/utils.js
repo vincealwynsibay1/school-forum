@@ -90,23 +90,18 @@ module.exports.paginatedResults = (model) => {
 			};
 		}
 
-		results.documents = await model
-			.find({})
-			.limit(limit)
-			.skip(startIndex)
-			.exec();
-
 		try {
 			if (sort) {
 				switch (sort) {
 					case "top":
 						if (model.modelName === "Group") {
 							if (s) {
-								lts.documents = await model
+								results.documents = await model
 									.find({ name: `/.*${s}.*/i` })
 									.limit(limit)
 									.sort({ members: -1 })
-									.skip(startIndex);
+									.skip(startIndex)
+									.exec();
 							} else {
 								results.documents = await model
 									.find({})
@@ -119,6 +114,7 @@ module.exports.paginatedResults = (model) => {
 							if (s) {
 								results.documents = await model
 									.find({ title: `/.*${s}.*/i` })
+									.populate("user")
 									.limit(limit)
 									.sort({ upvotes: -1 })
 									.skip(startIndex)
@@ -126,6 +122,7 @@ module.exports.paginatedResults = (model) => {
 							} else {
 								results.documents = await model
 									.find({})
+									.populate("user")
 									.limit(limit)
 									.sort({ upvotes: -1 })
 									.skip(startIndex)
@@ -160,6 +157,7 @@ module.exports.paginatedResults = (model) => {
 							} else if (model.modelName === "Post") {
 								results.documents = await model
 									.find({ title: `/.*${s}.*/i` })
+									.populate("user")
 									.limit(limit)
 									.sort({ created_at: -1 })
 									.skip(startIndex)
@@ -186,6 +184,7 @@ module.exports.paginatedResults = (model) => {
 					} else if (model.modelName === "Post") {
 						results.documents = await model
 							.find({ title: `/.*${s}.*/i` })
+							.populate("user")
 							.limit(limit)
 							.skip(startIndex)
 							.exec();

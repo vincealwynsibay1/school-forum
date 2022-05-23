@@ -2,10 +2,12 @@ const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema;
 const profileSchema = new mongoose.Schema({
 	user: {
-		type: mongoose.Schema.Types.ObjectId,
+		type: ObjectId,
+		ref: "User",
 	},
 	bio: {
 		type: String,
+		default: "",
 	},
 	followers: [
 		{
